@@ -196,12 +196,16 @@ int main(int argc, char* argv[])
     total_nsamps += nsamps_processed;
     // Now we must 'rewind' to do samples that couldn't be processed
     // Note: This assumes nsamps_gulp > 2*overlap
+    // add for loop over the number of beams for each process and keep track of 
+    // the indices for: start of each beam, start of overlap for each beam, end of each beam
     std::copy(&filterbank[nsamps_processed * stride * nsnap],
               &filterbank[(nsamps_read+overlap) * stride * nsnap],
               &filterbank[0]);
     overlap += nsamps_read - nsamps_processed;
     nsamps_read = data_source->get_data((nsamps_gulp - overlap)*nsnap,
                                         (char*)&filterbank[overlap*stride*nsnap]);
+    // end of for loop
+
 
     // at the end of data, never execute the pipeline
     if (nsamps_read < (nsamps_gulp - overlap)*nsnap)

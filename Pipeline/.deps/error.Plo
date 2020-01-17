@@ -72,13 +72,12 @@ error.lo: error.C /usr/include/stdc-predef.h /usr/include/c++/5/iostream \
  /usr/include/c++/5/bits/basic_ios.tcc \
  /usr/include/c++/5/bits/ostream.tcc /usr/include/c++/5/istream \
  /usr/include/c++/5/bits/istream.tcc hd/error.h \
- /home/vikram/usr/include/dedisp.h \
- /usr/local/cuda-10.0/include/cuda_runtime_api.h \
- /usr/local/cuda-10.0/include/crt/host_defines.h \
- /usr/local/cuda-10.0/include/builtin_types.h \
- /usr/local/cuda-10.0/include/device_types.h \
- /usr/local/cuda-10.0/include/driver_types.h \
- /usr/local/cuda-10.0/include/vector_types.h \
+ /usr/local/include/dedisp.h \
+ /usr/local/cuda-8.0/include/cuda_runtime_api.h \
+ /usr/local/cuda-8.0/include/host_defines.h \
+ /usr/local/cuda-8.0/include/builtin_types.h \
+ /usr/local/cuda-8.0/include/device_types.h \
+ /usr/local/cuda-8.0/include/driver_types.h \
  /usr/lib/gcc/x86_64-linux-gnu/5/include-fixed/limits.h \
  /usr/lib/gcc/x86_64-linux-gnu/5/include-fixed/syslimits.h \
  /usr/include/limits.h /usr/include/x86_64-linux-gnu/bits/posix1_lim.h \
@@ -87,9 +86,10 @@ error.lo: error.C /usr/include/stdc-predef.h /usr/include/c++/5/iostream \
  /usr/include/x86_64-linux-gnu/bits/posix2_lim.h \
  /usr/include/x86_64-linux-gnu/bits/xopen_lim.h \
  /usr/include/x86_64-linux-gnu/bits/stdio_lim.h \
- /usr/local/cuda-10.0/include/surface_types.h \
- /usr/local/cuda-10.0/include/texture_types.h \
- /usr/local/cuda-10.0/include/cuda_device_runtime_api.h
+ /usr/local/cuda-8.0/include/surface_types.h \
+ /usr/local/cuda-8.0/include/texture_types.h \
+ /usr/local/cuda-8.0/include/vector_types.h \
+ /usr/local/cuda-8.0/include/cuda_device_runtime_api.h
 
 /usr/include/stdc-predef.h:
 
@@ -289,19 +289,17 @@ error.lo: error.C /usr/include/stdc-predef.h /usr/include/c++/5/iostream \
 
 hd/error.h:
 
-/home/vikram/usr/include/dedisp.h:
+/usr/local/include/dedisp.h:
 
-/usr/local/cuda-10.0/include/cuda_runtime_api.h:
+/usr/local/cuda-8.0/include/cuda_runtime_api.h:
 
-/usr/local/cuda-10.0/include/crt/host_defines.h:
+/usr/local/cuda-8.0/include/host_defines.h:
 
-/usr/local/cuda-10.0/include/builtin_types.h:
+/usr/local/cuda-8.0/include/builtin_types.h:
 
-/usr/local/cuda-10.0/include/device_types.h:
+/usr/local/cuda-8.0/include/device_types.h:
 
-/usr/local/cuda-10.0/include/driver_types.h:
-
-/usr/local/cuda-10.0/include/vector_types.h:
+/usr/local/cuda-8.0/include/driver_types.h:
 
 /usr/lib/gcc/x86_64-linux-gnu/5/include-fixed/limits.h:
 
@@ -321,8 +319,10 @@ hd/error.h:
 
 /usr/include/x86_64-linux-gnu/bits/stdio_lim.h:
 
-/usr/local/cuda-10.0/include/surface_types.h:
+/usr/local/cuda-8.0/include/surface_types.h:
 
-/usr/local/cuda-10.0/include/texture_types.h:
+/usr/local/cuda-8.0/include/texture_types.h:
 
-/usr/local/cuda-10.0/include/cuda_device_runtime_api.h:
+/usr/local/cuda-8.0/include/vector_types.h:
+
+/usr/local/cuda-8.0/include/cuda_device_runtime_api.h:

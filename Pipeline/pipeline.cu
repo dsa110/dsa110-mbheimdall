@@ -437,7 +437,18 @@ hd_error hd_execute(hd_pipeline pl,
                               in, in_nbits, in_stride,
                               out, out_nbits, out_stride,
                               flags);
+  //remove beam parts with overlap or keep them and remove giants in overlap region later
   stop_timer(dedisp_timer);
+  
+  for(hd_size beam = 0; beam < pl->params.nbeams; beam++)  {
+    for(hd_size dm_trial = 0; dm_trial < dm_count; dm_trial++)  {
+      std::copy(&pl->h_dm_series[(beam*dm_count+dm_trial)*nsamps*out_nbits/8],
+      &pl->h_dm_series[(beam*dm_count+dm_trial)*(nsamps+nsamps_computed)*out_nbits/8],
+      &pl->h_dm_series[(beam*dm_count+dm_trial)*(series_stride)]); 
+    }
+  }
+  pl->h_dm_series.erase(&pl->h_dm_series[pl->params.nbeams*dm_count*series_stride],&pl->h_dm_series[pl->h_dm_series.size()]);
+
   if( derror != DEDISP_NO_ERROR ) {
     return throw_dedisp_error(derror);
   }
@@ -668,7 +679,22 @@ hd_error hd_execute(hd_pipeline pl,
 
   hd_size giant_count = d_giant_peaks.size();
   cout << "Giant count = " << giant_count << endl;
-  
+ 
+   FILE *giants_out;
+   char ofileg[200];
+   sprintf(ofileg,"%s/giants.cand",pl->params.output_dir);
+   giants_out = fopen(ofileg,"a");
+
+
+   // FILE WRITING VR
+   hd_size samp_idx;
+
+   for( hd_size i=0; i<d_giant_inds.size(); ++i ) {
+     samp_idx = first_idx + d_giant_begins[i];
+
+     // record output
+     fprintf(giants_out,"%g %lu %g %d %d %g %d\n",d_giant_peaks[i],samp_idx,samp_idx * pl->params.dt,d_giant_filter_inds[i],d_giant_dm_inds[i],dm_list[d_giant_dm_inds[i]],first_idx+d_giant_inds[i]);
+   } 
   start_timer(candidates_timer);
 
   thrust::host_vector<hd_float> h_group_peaks;
@@ -847,13 +873,13 @@ hd_error hd_execute(hd_pipeline pl,
    
    std::vector<hd_byte> output_data;
    int sent=0;
-   hd_size samp_idx;
+   hd_size samp_idx2;
    
    for( hd_size i=0; i<h_group_peaks.size(); ++i ) {
-     samp_idx = first_idx + h_group_begins[i];
+     samp_idx2 = first_idx + h_group_begins[i];
 
      // record output
-     fprintf(cands_out,"%g %lu %g %d %d %g %d %lu\n",h_group_peaks[i],samp_idx,samp_idx * pl->params.dt,h_group_filter_inds[i],h_group_dm_inds[i],h_group_dms[i],h_group_members[i],first_idx+h_group_inds[i]);
+     fprintf(cands_out,"%g %lu %g %d %d %g %d %lu\n",h_group_peaks[i],samp_idx2,samp_idx2 * pl->params.dt,h_group_filter_inds[i],h_group_dm_inds[i],h_group_dms[i],h_group_members[i],first_idx+h_group_inds[i]);
      
      // if pulse is dump-able
      if ((samp_idx>100000) && h_group_peaks[i]>8.0) {

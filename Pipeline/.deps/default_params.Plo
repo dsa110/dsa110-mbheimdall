@@ -1,6 +1,6 @@
 default_params.lo: default_params.C /usr/include/stdc-predef.h \
  hd/default_params.h hd/params.h ../config.h \
- /home/vikram/usr/include/dada_hdu.h /home/vikram/usr/include/multilog.h \
+ /usr/local/include/dada_hdu.h /usr/local/include/multilog.h \
  /usr/include/syslog.h /usr/include/x86_64-linux-gnu/sys/syslog.h \
  /usr/include/features.h /usr/include/x86_64-linux-gnu/sys/cdefs.h \
  /usr/include/x86_64-linux-gnu/bits/wordsize.h \
@@ -24,10 +24,10 @@ default_params.lo: default_params.C /usr/include/stdc-predef.h \
  /usr/include/x86_64-linux-gnu/bits/time.h \
  /usr/include/x86_64-linux-gnu/bits/timex.h /usr/include/xlocale.h \
  /usr/include/x86_64-linux-gnu/bits/pthreadtypes.h \
- /usr/include/x86_64-linux-gnu/bits/setjmp.h \
- /home/vikram/usr/include/ipcio.h /home/vikram/usr/include/ipcbuf.h \
- /usr/include/inttypes.h /usr/lib/gcc/x86_64-linux-gnu/5/include/stdint.h \
- /usr/include/stdint.h /usr/include/x86_64-linux-gnu/bits/wchar.h \
+ /usr/include/x86_64-linux-gnu/bits/setjmp.h /usr/local/include/ipcio.h \
+ /usr/local/include/ipcbuf.h /usr/include/inttypes.h \
+ /usr/lib/gcc/x86_64-linux-gnu/5/include/stdint.h /usr/include/stdint.h \
+ /usr/include/x86_64-linux-gnu/bits/wchar.h \
  /usr/include/x86_64-linux-gnu/sys/types.h \
  /usr/include/x86_64-linux-gnu/sys/select.h \
  /usr/include/x86_64-linux-gnu/bits/select.h \
@@ -47,9 +47,9 @@ hd/params.h:
 
 ../config.h:
 
-/home/vikram/usr/include/dada_hdu.h:
+/usr/local/include/dada_hdu.h:
 
-/home/vikram/usr/include/multilog.h:
+/usr/local/include/multilog.h:
 
 /usr/include/syslog.h:
 
@@ -119,9 +119,9 @@ hd/params.h:
 
 /usr/include/x86_64-linux-gnu/bits/setjmp.h:
 
-/home/vikram/usr/include/ipcio.h:
+/usr/local/include/ipcio.h:
 
-/home/vikram/usr/include/ipcbuf.h:
+/usr/local/include/ipcbuf.h:
 
 /usr/include/inttypes.h:
 

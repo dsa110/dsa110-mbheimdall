@@ -81,7 +81,7 @@ Candidates.o: Candidates.C /usr/include/stdc-predef.h hd/Candidates.h \
  /usr/include/c++/5/bits/istream.tcc /usr/include/c++/5/sstream \
  /usr/include/c++/5/bits/sstream.tcc /usr/include/inttypes.h \
  /usr/lib/gcc/x86_64-linux-gnu/5/include/stdint.h /usr/include/stdint.h \
- /home/vikram/usr/include/tmutil.h /usr/include/c++/5/fstream \
+ /usr/local/include/tmutil.h /usr/include/c++/5/fstream \
  /usr/include/c++/5/bits/codecvt.h /usr/include/c++/5/cstdio \
  /usr/include/libio.h /usr/include/_G_config.h \
  /usr/include/x86_64-linux-gnu/bits/stdio_lim.h \
@@ -336,7 +336,7 @@ hd/Candidates.h:
 
 /usr/include/stdint.h:
 
-/home/vikram/usr/include/tmutil.h:
+/usr/local/include/tmutil.h:
 
 /usr/include/c++/5/fstream:
 

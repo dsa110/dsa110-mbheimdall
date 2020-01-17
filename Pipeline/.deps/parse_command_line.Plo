@@ -92,15 +92,14 @@ parse_command_line.lo: parse_command_line.C /usr/include/stdc-predef.h \
  /usr/include/x86_64-linux-gnu/bits/stdlib-bsearch.h \
  /usr/include/x86_64-linux-gnu/bits/stdlib-float.h \
  /usr/include/x86_64-linux-gnu/bits/stdlib.h hd/parse_command_line.h \
- hd/params.h ../config.h /home/vikram/usr/include/dada_hdu.h \
- /home/vikram/usr/include/multilog.h /usr/include/syslog.h \
+ hd/params.h ../config.h /usr/local/include/dada_hdu.h \
+ /usr/local/include/multilog.h /usr/include/syslog.h \
  /usr/include/x86_64-linux-gnu/sys/syslog.h \
  /usr/include/x86_64-linux-gnu/bits/syslog-path.h \
- /usr/include/x86_64-linux-gnu/bits/syslog.h \
- /home/vikram/usr/include/ipcio.h /home/vikram/usr/include/ipcbuf.h \
- /usr/include/inttypes.h /usr/lib/gcc/x86_64-linux-gnu/5/include/stdint.h \
- /usr/include/stdint.h hd/types.h /usr/include/c++/5/cstddef \
- hd/default_params.h hd/maths.h
+ /usr/include/x86_64-linux-gnu/bits/syslog.h /usr/local/include/ipcio.h \
+ /usr/local/include/ipcbuf.h /usr/include/inttypes.h \
+ /usr/lib/gcc/x86_64-linux-gnu/5/include/stdint.h /usr/include/stdint.h \
+ hd/types.h /usr/include/c++/5/cstddef hd/default_params.h hd/maths.h
 
 /usr/include/stdc-predef.h:
 
@@ -352,9 +351,9 @@ hd/params.h:
 
 ../config.h:
 
-/home/vikram/usr/include/dada_hdu.h:
+/usr/local/include/dada_hdu.h:
 
-/home/vikram/usr/include/multilog.h:
+/usr/local/include/multilog.h:
 
 /usr/include/syslog.h:
 
@@ -364,9 +363,9 @@ hd/params.h:
 
 /usr/include/x86_64-linux-gnu/bits/syslog.h:
 
-/home/vikram/usr/include/ipcio.h:
+/usr/local/include/ipcio.h:
 
-/home/vikram/usr/include/ipcbuf.h:
+/usr/local/include/ipcbuf.h:
 
 /usr/include/inttypes.h:
 

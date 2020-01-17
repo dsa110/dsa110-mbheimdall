@@ -116,13 +116,12 @@ generate_dmlist.o: generate_dmlist.C /usr/include/stdc-predef.h \
  /usr/include/c++/5/bits/stl_heap.h /usr/include/c++/5/bits/stl_tempbuf.h \
  /usr/include/inttypes.h /usr/lib/gcc/x86_64-linux-gnu/5/include/stdint.h \
  /usr/include/stdint.h ../Formats/hd/header.h ../Pipeline/hd/error.h \
- /home/vikram/usr/include/dedisp.h \
- /usr/local/cuda-10.0/include/cuda_runtime_api.h \
- /usr/local/cuda-10.0/include/crt/host_defines.h \
- /usr/local/cuda-10.0/include/builtin_types.h \
- /usr/local/cuda-10.0/include/device_types.h \
- /usr/local/cuda-10.0/include/driver_types.h \
- /usr/local/cuda-10.0/include/vector_types.h \
+ /usr/local/include/dedisp.h \
+ /usr/local/cuda-8.0/include/cuda_runtime_api.h \
+ /usr/local/cuda-8.0/include/host_defines.h \
+ /usr/local/cuda-8.0/include/builtin_types.h \
+ /usr/local/cuda-8.0/include/device_types.h \
+ /usr/local/cuda-8.0/include/driver_types.h \
  /usr/lib/gcc/x86_64-linux-gnu/5/include-fixed/limits.h \
  /usr/lib/gcc/x86_64-linux-gnu/5/include-fixed/syslimits.h \
  /usr/include/limits.h /usr/include/x86_64-linux-gnu/bits/posix1_lim.h \
@@ -130,16 +129,17 @@ generate_dmlist.o: generate_dmlist.C /usr/include/stdc-predef.h \
  /usr/include/linux/limits.h \
  /usr/include/x86_64-linux-gnu/bits/posix2_lim.h \
  /usr/include/x86_64-linux-gnu/bits/xopen_lim.h \
- /usr/local/cuda-10.0/include/surface_types.h \
- /usr/local/cuda-10.0/include/texture_types.h \
- /usr/local/cuda-10.0/include/cuda_device_runtime_api.h \
+ /usr/local/cuda-8.0/include/surface_types.h \
+ /usr/local/cuda-8.0/include/texture_types.h \
+ /usr/local/cuda-8.0/include/vector_types.h \
+ /usr/local/cuda-8.0/include/cuda_device_runtime_api.h \
  ../Pipeline/hd/default_params.h ../Pipeline/hd/params.h ../config.h \
- /home/vikram/usr/include/dada_hdu.h /home/vikram/usr/include/multilog.h \
+ /usr/local/include/dada_hdu.h /usr/local/include/multilog.h \
  /usr/include/syslog.h /usr/include/x86_64-linux-gnu/sys/syslog.h \
  /usr/include/x86_64-linux-gnu/bits/syslog-path.h \
- /usr/include/x86_64-linux-gnu/bits/syslog.h \
- /home/vikram/usr/include/ipcio.h /home/vikram/usr/include/ipcbuf.h \
- ../Pipeline/hd/types.h /usr/include/c++/5/cstddef
+ /usr/include/x86_64-linux-gnu/bits/syslog.h /usr/local/include/ipcio.h \
+ /usr/local/include/ipcbuf.h ../Pipeline/hd/types.h \
+ /usr/include/c++/5/cstddef
 
 /usr/include/stdc-predef.h:
 
@@ -459,19 +459,17 @@ generate_dmlist.o: generate_dmlist.C /usr/include/stdc-predef.h \
 
 ../Pipeline/hd/error.h:
 
-/home/vikram/usr/include/dedisp.h:
+/usr/local/include/dedisp.h:
 
-/usr/local/cuda-10.0/include/cuda_runtime_api.h:
+/usr/local/cuda-8.0/include/cuda_runtime_api.h:
 
-/usr/local/cuda-10.0/include/crt/host_defines.h:
+/usr/local/cuda-8.0/include/host_defines.h:
 
-/usr/local/cuda-10.0/include/builtin_types.h:
+/usr/local/cuda-8.0/include/builtin_types.h:
 
-/usr/local/cuda-10.0/include/device_types.h:
+/usr/local/cuda-8.0/include/device_types.h:
 
-/usr/local/cuda-10.0/include/driver_types.h:
-
-/usr/local/cuda-10.0/include/vector_types.h:
+/usr/local/cuda-8.0/include/driver_types.h:
 
 /usr/lib/gcc/x86_64-linux-gnu/5/include-fixed/limits.h:
 
@@ -489,11 +487,13 @@ generate_dmlist.o: generate_dmlist.C /usr/include/stdc-predef.h \
 
 /usr/include/x86_64-linux-gnu/bits/xopen_lim.h:
 
-/usr/local/cuda-10.0/include/surface_types.h:
+/usr/local/cuda-8.0/include/surface_types.h:
 
-/usr/local/cuda-10.0/include/texture_types.h:
+/usr/local/cuda-8.0/include/texture_types.h:
 
-/usr/local/cuda-10.0/include/cuda_device_runtime_api.h:
+/usr/local/cuda-8.0/include/vector_types.h:
+
+/usr/local/cuda-8.0/include/cuda_device_runtime_api.h:
 
 ../Pipeline/hd/default_params.h:
 
@@ -501,9 +501,9 @@ generate_dmlist.o: generate_dmlist.C /usr/include/stdc-predef.h \
 
 ../config.h:
 
-/home/vikram/usr/include/dada_hdu.h:
+/usr/local/include/dada_hdu.h:
 
-/home/vikram/usr/include/multilog.h:
+/usr/local/include/multilog.h:
 
 /usr/include/syslog.h:
 
@@ -513,9 +513,9 @@ generate_dmlist.o: generate_dmlist.C /usr/include/stdc-predef.h \
 
 /usr/include/x86_64-linux-gnu/bits/syslog.h:
 
-/home/vikram/usr/include/ipcio.h:
+/usr/local/include/ipcio.h:
 
-/home/vikram/usr/include/ipcbuf.h:
+/usr/local/include/ipcbuf.h:
 
 ../Pipeline/hd/types.h:
 

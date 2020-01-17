@@ -123,6 +123,9 @@ int hd_parse_command_line(int argc, char* argv[], hd_params* params)
     else if( argv[i] == string("-min_tscrunch_width") ) {
       params->min_tscrunch_width = atoi(argv[++i]);
     }
+    else if( argv[i] == string("-nbeams") ) {
+      params->nbeams = atoi(argv[++i]);
+    }
     else if( argv[i] == string("-coincidencer") ) {
       std::istringstream iss (argv[++i], std::istringstream::in);
       string host, port;
@@ -181,6 +184,7 @@ void hd_print_usage()
   cout << "    -coincidencer host:port  connect to the coincidencer on the specified host and port" << endl;
   cout << "    -zap_chans start end     zap all channels between start and end channels inclusive" << endl;
   cout << "    -max_giant_rate nevents  limit the maximum number of individual detections per minute to nevents" << endl;
+  cout << "    -nbeams                  The number of beams to process simultaneously." << endl;
   cout << "    -dm_pulse_width num      TBA" << endl;
   cout << "    -dm_nbits num            TBA" << endl;
   cout << "    -scrunching num          TBA" << endl;

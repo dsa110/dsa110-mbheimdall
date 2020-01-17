@@ -45,6 +45,7 @@ struct hd_params {
   bool     use_scrunching; // Whether to apply time-scrunching during dedispersion
   hd_float scrunch_tol;    // Smear tolerance factor for time scrunching
   // RFI mitigation parameters
+  hd_size nbeams;          // Number of beams to process
   hd_float rfi_tol;        // Probability of incorrectly identifying noise as RFI
   hd_size  rfi_min_beams;  // Min no. beams to identify coincident signals as RFI
   // Single pulse search parameters

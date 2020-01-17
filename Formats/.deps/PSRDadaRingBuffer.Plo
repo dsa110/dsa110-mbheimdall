@@ -77,25 +77,24 @@ PSRDadaRingBuffer.lo: PSRDadaRingBuffer.C /usr/include/stdc-predef.h \
  /usr/include/x86_64-linux-gnu/asm/errno.h \
  /usr/include/asm-generic/errno.h /usr/include/asm-generic/errno-base.h \
  /usr/include/string.h /usr/include/x86_64-linux-gnu/bits/string3.h \
- hd/PSRDadaRingBuffer.h /home/vikram/usr/include/dada_hdu.h \
- /home/vikram/usr/include/multilog.h /usr/include/syslog.h \
+ hd/PSRDadaRingBuffer.h /usr/local/include/dada_hdu.h \
+ /usr/local/include/multilog.h /usr/include/syslog.h \
  /usr/include/x86_64-linux-gnu/sys/syslog.h \
  /usr/include/x86_64-linux-gnu/bits/syslog-path.h \
  /usr/include/x86_64-linux-gnu/bits/syslog.h /usr/include/libio.h \
  /usr/include/_G_config.h /usr/include/x86_64-linux-gnu/bits/stdio_lim.h \
  /usr/include/x86_64-linux-gnu/bits/sys_errlist.h \
  /usr/include/x86_64-linux-gnu/bits/stdio.h \
- /usr/include/x86_64-linux-gnu/bits/stdio2.h \
- /home/vikram/usr/include/ipcio.h /home/vikram/usr/include/ipcbuf.h \
- /usr/include/inttypes.h /usr/lib/gcc/x86_64-linux-gnu/5/include/stdint.h \
- /usr/include/stdint.h /usr/include/x86_64-linux-gnu/sys/types.h \
+ /usr/include/x86_64-linux-gnu/bits/stdio2.h /usr/local/include/ipcio.h \
+ /usr/local/include/ipcbuf.h /usr/include/inttypes.h \
+ /usr/lib/gcc/x86_64-linux-gnu/5/include/stdint.h /usr/include/stdint.h \
+ /usr/include/x86_64-linux-gnu/sys/types.h \
  /usr/include/x86_64-linux-gnu/sys/select.h \
  /usr/include/x86_64-linux-gnu/bits/select.h \
  /usr/include/x86_64-linux-gnu/bits/sigset.h \
  /usr/include/x86_64-linux-gnu/bits/select2.h \
  /usr/include/x86_64-linux-gnu/sys/sysmacros.h hd/DataSource.h \
- /home/vikram/usr/include/ascii_header.h \
- /home/vikram/usr/include/tmutil.h
+ /usr/local/include/ascii_header.h /usr/local/include/tmutil.h
 
 /usr/include/stdc-predef.h:
 
@@ -311,9 +310,9 @@ PSRDadaRingBuffer.lo: PSRDadaRingBuffer.C /usr/include/stdc-predef.h \
 
 hd/PSRDadaRingBuffer.h:
 
-/home/vikram/usr/include/dada_hdu.h:
+/usr/local/include/dada_hdu.h:
 
-/home/vikram/usr/include/multilog.h:
+/usr/local/include/multilog.h:
 
 /usr/include/syslog.h:
 
@@ -335,9 +334,9 @@ hd/PSRDadaRingBuffer.h:
 
 /usr/include/x86_64-linux-gnu/bits/stdio2.h:
 
-/home/vikram/usr/include/ipcio.h:
+/usr/local/include/ipcio.h:
 
-/home/vikram/usr/include/ipcbuf.h:
+/usr/local/include/ipcbuf.h:
 
 /usr/include/inttypes.h:
 
@@ -359,6 +358,6 @@ hd/PSRDadaRingBuffer.h:
 
 hd/DataSource.h:
 
-/home/vikram/usr/include/ascii_header.h:
+/usr/local/include/ascii_header.h:
 
-/home/vikram/usr/include/tmutil.h:
+/usr/local/include/tmutil.h:

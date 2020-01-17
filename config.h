@@ -11,10 +11,10 @@
 #define HAVE_BOOST 1
 
 /* Define if the CUDA library is present */
-#define HAVE_CUDA 1
+/* #undef HAVE_CUDA */
 
 /* Define if the DEDISP Library is present */
-#define HAVE_DEDISP 1
+/* #undef HAVE_DEDISP */
 
 /* Define to 1 if you have the <dlfcn.h> header file. */
 #define HAVE_DLFCN_H 1
@@ -110,7 +110,7 @@
 #define HAVE_SYS_TYPES_H 1
 
 /* Define if the THRUST Library is present */
-#define HAVE_THRUST 1
+/* #undef HAVE_THRUST */
 
 /* Define to 1 if you have the <unistd.h> header file. */
 #define HAVE_UNISTD_H 1
