@@ -163,10 +163,10 @@ AUTOMAKE = ${SHELL} /usr/local/heimdall/missing --run automake-1.11
 AWK = gawk
 BOOST_CPPFLAGS = 
 BOOST_ROOT = 
-CC = /usr/local/cuda-8.0/bin/nvcc --gpu-architecture=sm_61
+CC = gcc #/usr/local/cuda-8.0/bin/nvcc --gpu-architecture=sm_61
 CCDEPMODE = depmode=none
 CFLAGS = -g -O2 
-CPP = /usr/local/cuda-8.0/bin/nvcc --gpu-architecture=sm_61 -E
+CPP = gcc #/usr/local/cuda-8.0/bin/nvcc --gpu-architecture=sm_61 -E
 CPPFLAGS = 
 CUDA_CFLAGS = -I/usr/local/cuda-8.0/include
 CUDA_LIBS = -L/usr/local/cuda-8.0/lib -lcudart
@@ -174,7 +174,7 @@ CUDA_NVCC = /usr/local/cuda-8.0/bin/nvcc $(CUDA_NVCC_FLAGS) -Xcompiler "$(DEFAUL
 CXX = g++
 CXXCPP = g++ -E
 CXXDEPMODE = depmode=gcc3
-CXXFLAGS = -g -O2  -I/usr/local/cuda-8.0/include
+CXXFLAGS = -g  -O2  -I/usr/local/cuda-8.0/include
 CYGPATH_W = echo
 DEDISP_CFLAGS = -I/usr/local/include
 DEDISP_LIBS = -L/usr/local/lib -ldedisp -lstdc++

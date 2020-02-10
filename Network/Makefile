@@ -121,7 +121,7 @@ CUDA_NVCC = /usr/local/cuda-8.0/bin/nvcc $(CUDA_NVCC_FLAGS) -Xcompiler "$(DEFAUL
 CXX = g++
 CXXCPP = g++ -E
 CXXDEPMODE = depmode=gcc3
-CXXFLAGS = -g -O2  -I/usr/local/cuda-8.0/include
+CXXFLAGS = -g  -O2  -I/usr/local/cuda-8.0/include
 CYGPATH_W = echo
 DEDISP_CFLAGS = -I/usr/local/include
 DEDISP_LIBS = -L/usr/local/lib -ldedisp -lstdc++

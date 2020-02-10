@@ -21,6 +21,8 @@ using std::endl;
 #include "hd/default_params.h"
 #include "hd/pipeline.h"
 #include "hd/error.h"
+#include "hd/types.h"
+#include <dedisp.h>
 
 // input formats supported
 #include "hd/DataSource.h"
@@ -30,6 +32,7 @@ using std::endl;
 #endif
 
 #include "hd/stopwatch.h"
+
 
 int main(int argc, char* argv[]) 
 {
@@ -111,16 +114,16 @@ int main(int argc, char* argv[])
 
   float tsamp = data_source->get_tsamp() / 1000000;
   size_t stride = data_source->get_stride();
+  cout << stride << endl;
+  params.beam_count = 10; 
+  cout << params.beam_count << endl;
+  cout << params.nchans << endl;
   size_t nbits  = data_source->get_nbit();
 
   params.nchans = data_source->get_nchan();
   params.utc_start = data_source->get_utc_start();
   params.spectra_per_second = data_source->get_spectra_rate();
 
-  if ( params.verbosity >= 2)
-    cout << "allocating filterbank data vector for " << nsamps_gulp*nsnap << " samples with size " << (nsamps_gulp * stride * nsnap) << " bytes" << endl;
-  std::vector<hd_byte> filterbank(nsamps_gulp * stride * nsnap);
-  
   bool stop_requested = false;
   
   // Create the pipeline object
@@ -134,7 +137,31 @@ int main(int argc, char* argv[])
     return -1;
   }
   // --------------------------
+size_t derror;
+dedisp_plan dedispersion_plan;
+derror = dedisp_create_plan(&dedispersion_plan,
+                              params.nchans, params.dt,
+                              params.f0, params.df);
+
+derror = dedisp_generate_dm_list(dedispersion_plan,
+                                   params.dm_min,
+                                   params.dm_max,
+                                   params.dm_pulse_width,
+                                   params.dm_tol);
+
+cout << "params.nchans " << params.nchans << endl;
+cout << "params.dt " << params.dt << endl;
+cout << "params.f0 " << params.f0 << endl;
+cout << "params.df " << params.df << endl; 
+
+  size_t max_delay = dedisp_get_max_delay(dedispersion_plan);
+  cout << "max delay " << max_delay << endl;
+  size_t boxcar_max = params.boxcar_max;
   
+  if ( params.verbosity >= 2)
+    cout << "allocating filterbank data vector for " << (nsamps_gulp+max_delay+boxcar_max)*nsnap << " samples with size " << ((nsamps_gulp + max_delay + boxcar_max) * stride * nsnap * params.nbeams) << " bytes" << " with " << params.nbeams << " beams." <<  endl;
+  std::vector<hd_byte> filterbank((nsamps_gulp + max_delay+boxcar_max)* stride * nsnap * params.nbeams);
+
   if( params.verbosity >= 1 ) {
     cout << "Beginning data processing, requesting " << nsamps_gulp << " samples" << endl;
   }
@@ -147,13 +174,19 @@ int main(int argc, char* argv[])
   int fseq = 0;
   size_t cur_nsamps = 0;
   size_t total_nsamps = 0;
-  size_t nsamps_read = data_source->get_data (nsamps_gulp * nsnap, (char*)&filterbank[0]);
+  size_t nsamps_read = 0;
+  for (int i=0;i<params.nbeams;i++) {
+    for (int j = i*(nsamps_gulp + max_delay+boxcar_max)*stride*nsnap; j < (i*(nsamps_gulp + max_delay+boxcar_max) + max_delay+boxcar_max)* stride * nsnap; j++)
+      filterbank[j] = 128;
+  nsamps_read += data_source->get_data (nsamps_gulp * nsnap, (char*)&filterbank[(i*(nsamps_gulp + max_delay+boxcar_max) + max_delay+boxcar_max)* stride * nsnap]);
+  }
+  nsamps_read = nsamps_read/params.nbeams;
   size_t overlap = 0;
   while( nsamps_read && !stop_requested )
   {
     
-    if ( params.verbosity >= 1 ) {
-      cout << "Executing pipeline on new gulp of " << nsamps_read/nsnap
+    if ( params.verbosity >= 1 ) { 
+      cout << "Executing pipeline on new gulp of " << nsamps_gulp + max_delay + boxcar_max
            << " samples..." << endl;
     }
     //pipeline_timer.start();
@@ -170,7 +203,7 @@ int main(int argc, char* argv[])
     }
     
     hd_size nsamps_processed;
-    error = hd_execute(pipeline, &filterbank[0], nsamps_read/nsnap+overlap, nbits,
+    error = hd_execute(pipeline, &filterbank[0], nsamps_gulp + max_delay + boxcar_max, nbits,
                        total_nsamps, cur_nsamps, &nsamps_processed);
     if (error == HD_NO_ERROR)
     {
@@ -193,22 +226,30 @@ int main(int argc, char* argv[])
     if (params.verbosity >= 1)
       cout << "Main: nsamps_processed=" << nsamps_processed << endl;
 
-    total_nsamps += nsamps_processed;
+    if (total_nsamps == 0) total_nsamps += nsamps_gulp - max_delay - boxcar_max;// - max_delay - boxcar_max;
+    else total_nsamps += nsamps_processed;
     // Now we must 'rewind' to do samples that couldn't be processed
-    // Note: This assumes nsamps_gulp > 2*overlap
-    // add for loop over the number of beams for each process and keep track of 
-    // the indices for: start of each beam, start of overlap for each beam, end of each beam
-    std::copy(&filterbank[nsamps_processed * stride * nsnap],
-              &filterbank[(nsamps_read+overlap) * stride * nsnap],
-              &filterbank[0]);
-    overlap += nsamps_read - nsamps_processed;
-    nsamps_read = data_source->get_data((nsamps_gulp - overlap)*nsnap,
-                                        (char*)&filterbank[overlap*stride*nsnap]);
-    // end of for loop
-
+    //std::copy(&filterbank[nsamps_processed * stride * nsnap],
+    //          &filterbank[(nsamps_read+overlap) * stride * nsnap],
+    //          &filterbank[0]); // move the tail of the block to the beginning of the same filterband? 
+    //overlap += nsamps_read - nsamps_processed;
+    //nsamps_read = data_source->get_data((nsamps_gulp - overlap)*nsnap,
+    //                                     (char*)&filterbank[overlap*stride*nsnap]);
+    
+    for (int i = 0; i < params.nbeams; i++){ 
+      std::copy(&filterbank[((i*(nsamps_gulp + max_delay + boxcar_max) + nsamps_gulp)) * stride * nsnap],
+                &filterbank[((i+1)*(nsamps_gulp + max_delay + boxcar_max)) * stride * nsnap],
+                &filterbank[i * (nsamps_gulp + max_delay + boxcar_max) * stride * nsnap]);// or [i * (nsamps_read+overlap) * stride * nsnap])?  
+      
+      if (i == 0){
+      //overlap += nsamps_read - nsamps_processed;
+      } 
+      nsamps_read = data_source->get_data((nsamps_gulp)*nsnap,
+                                        (char*)&filterbank[(max_delay + boxcar_max + i * (nsamps_gulp + max_delay + boxcar_max)) * stride * nsnap]);
+    }
 
     // at the end of data, never execute the pipeline
-    if (nsamps_read < (nsamps_gulp - overlap)*nsnap)
+    if (nsamps_read < (nsamps_gulp - overlap)*nsnap) // why < ? not > ? 
       stop_requested = 1;
   }
  
