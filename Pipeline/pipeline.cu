@@ -435,11 +435,11 @@ hd_error hd_execute(hd_pipeline pl,
                               in, in_nbits, in_stride,
                               out, out_nbits, out_stride,
                               flags);
-FILE *dedisp_out;
+/*FILE *dedisp_out;
    char ofiledo[200];
    sprintf(ofiledo,"%s/dedisp_out.cand",pl->params.output_dir);
 dedisp_out = fopen(ofiledo,"a");
-/*hd_float* dummy;
+*hd_float* dummy;
 int* dummy2;
 for (int i=0; i < pl->h_dm_series.size()/4;i++)  {
 dummy = (hd_float*)&pl->h_dm_series[i*4];
@@ -737,8 +737,8 @@ fprintf(dm_out,"%g\n",pl->h_dm_series[offset*8/pl->params.dm_nbits+l]);
      beam_no = h_giant_inds[i]/nsamps;
      samp_idx = first_idx +giant_index;
          block_no = (giant_index + first_idx)/(nsamps - pl->params.boxcar_max - dedisp_get_max_delay(pl->dedispersion_plan));
-         if (giant_index < overlap) {filterbank_ind = block_no * block_size * pl->params.nbeams + (beam_no+1) * block_size + giant_index - overlap;
-	 else {filterbank_ind = block_no * block_size * pl->params.nbeams + (beam_no-1) * block_size + giant_index + nsamps - 2*overlap;
+         if (giant_index < overlap) filterbank_ind = block_no * block_size * pl->params.nbeams + (beam_no+1) * block_size + giant_index - overlap;
+	 else filterbank_ind = block_no * block_size * pl->params.nbeams + (beam_no-1) * block_size + giant_index + nsamps - 2*overlap;
 
      // record output
      if (giant_index < nsamps_computed + pl->params.boxcar_max/2) {
@@ -937,8 +937,8 @@ fprintf(dm_out,"%g\n",pl->h_dm_series[offset*8/pl->params.dm_nbits+l]);
      samp_idx2 = first_idx + group_sample_ind; 
      //filterbank_ind2 = first_idx*pl->params.nbeams + nsamps*(beam_no-1) +group_sample_ind;
      block_no2 = (group_sample_ind + first_idx)/(nsamps - pl->params.boxcar_max - dedisp_get_max_delay(pl->dedispersion_plan));
-	 if (group_sample_ind < overlap) {filterbank_ind2 = block_no2 * block_size * pl->params.nbeams + (beam_no-1) * block_size + group_sample_ind - overlap;
-         else {filterbank_ind2 = block_no2 * block_size * pl->params.nbeams + (beam_no-1) * block_size + group_sample_ind + nsamps - 2*overlap;
+	 if (group_sample_ind < overlap) filterbank_ind2 = block_no2 * block_size * pl->params.nbeams + (beam_no-1) * block_size + group_sample_ind - overlap;
+         else filterbank_ind2 = block_no2 * block_size * pl->params.nbeams + (beam_no-1) * block_size + group_sample_ind + nsamps - 2*overlap;
      // record output
      if (group_sample_ind < *nsamps_processed) fprintf(cands_out,"%g %lu %lu %g %d %d %g %d %d\n",h_group_peaks[i],filterbank_ind2,samp_idx2,samp_idx2 * pl->params.dt,h_group_filter_inds[i],h_group_dm_inds[i],h_group_dms[i],h_group_members[i],group_beam_no);
      
@@ -981,7 +981,7 @@ fprintf(dm_out,"%g\n",pl->h_dm_series[offset*8/pl->params.dm_nbits+l]);
 
      
      // dump data
-     sprintf(cmd,"echo %lu-%g-%d-%g | nc -4u -w1 10.10.1.7 11223 &",rawsample,h_group_peaks[maxI],h_group_filter_inds[maxI],h_group_dms[maxI]);
+     /*sprintf(cmd,"echo %lu-%g-%d-%g | nc -4u -w1 10.10.1.7 11223 &",rawsample,h_group_peaks[maxI],h_group_filter_inds[maxI],h_group_dms[maxI]);
      cout << "Sending to dsa1: " << cmd << endl;
      system(cmd);
      sprintf(cmd,"echo %lu-%g-%d-%g | nc -4u -w1 10.10.1.8 11223 &",rawsample,h_group_peaks[maxI],h_group_filter_inds[maxI],h_group_dms[maxI]);
@@ -991,7 +991,7 @@ fprintf(dm_out,"%g\n",pl->h_dm_series[offset*8/pl->params.dm_nbits+l]);
      sprintf(cmd,"echo %lu-%g-%d-%g | nc -4u -w1 10.10.1.10 11223 &",rawsample,h_group_peaks[maxI],h_group_filter_inds[maxI],h_group_dms[maxI]);
      system(cmd);
      sprintf(cmd,"echo %lu-%g-%d-%g | nc -4u -w1 10.10.1.1 11223 &",rawsample,h_group_peaks[maxI],h_group_filter_inds[maxI],h_group_dms[maxI]);
-     system(cmd);
+     system(cmd);*/
      
      sprintf(filname,"%s/candidate_%d.fil",pl->params.output_dir,first_idx+h_group_begins[maxI]);
      output = fopen(filname,"wb");
