@@ -678,20 +678,20 @@ fprintf(dm_out,"%g\n",pl->h_dm_series[offset*8/pl->params.dm_nbits+l]);
       // Bail if the candidate rate is too high
       hd_size total_giant_count = d_giant_peaks.size();
       hd_float data_length_mins = nsamps * pl->params.dt / 60.0;
-      //if ( pl->params.max_giant_rate && ( total_giant_count / data_length_mins > pl->params.max_giant_rate ) ) {
-	//too_many_giants = true;
-	//float searched = ((float) dm_idx * 100) / (float) dm_count;
-	//notrig = 1;
-	//cout << "WARNING: exceeded max giants/min, DM [" << dm_list[dm_idx] << "] space searched " << searched << "%" << endl;
-	//break;
-    //  }
+      /*if ( pl->params.max_giant_rate && ( total_giant_count / data_length_mins > pl->params.max_giant_rate ) ) {
+	too_many_giants = true;
+	float searched = ((float) dm_idx * 100) / (float) dm_count;
+	notrig = 1;
+	cout << "WARNING: exceeded max giants/min, DM [" << dm_list[dm_idx] << "] space searched " << searched << "%" << endl;
+	break;
+    }
 
-     // if (total_timer.getTime() > 7.75) { // nbeams*(nsamps_gulp + max_delay + boxcar_max) * tsamp?  
-	//too_many_giants = true;
-	//float searched = ((float) dm_idx * 100) / (float) dm_count;
-	//cout << "WARNING: exceeded max giants processed in 7.75s, DM [" << dm_list[dm_idx] << "] space searched " << searched << "%" << endl;
-	//break;
-      //}
+      if (total_timer.getTime() > 7.75) { // nbeams*(nsamps_gulp + max_delay + boxcar_max) * tsamp?  
+	too_many_giants = true;
+	float searched = ((float) dm_idx * 100) / (float) dm_count;
+	cout << "WARNING: exceeded max giants processed in 7.75s, DM [" << dm_list[dm_idx] << "] space searched " << searched << "%" << endl;
+	break;
+      }*/
       
     } //close filter width loop  
     
@@ -983,17 +983,17 @@ fprintf(dm_out,"%g\n",pl->h_dm_series[offset*8/pl->params.dm_nbits+l]);
      
      // dump data
      // comment out the "nc" command for now, since they tell a non-existent buffer to send data. 
-     //sprintf(cmd,"echo %lu-%g-%d-%g | nc -4u -w1 10.10.1.7 11223 &",rawsample,h_group_peaks[maxI],h_group_filter_inds[maxI],h_group_dms[maxI]);
-     //cout << "Sending to dsa1: " << cmd << endl;
-     //system(cmd);
-     //sprintf(cmd,"echo %lu-%g-%d-%g | nc -4u -w1 10.10.1.8 11223 &",rawsample,h_group_peaks[maxI],h_group_filter_inds[maxI],h_group_dms[maxI]);
-     //system(cmd);
-     //sprintf(cmd,"echo %lu-%g-%d-%g | nc -4u -w1 10.10.1.9 11223 &",rawsample,h_group_peaks[maxI],h_group_filter_inds[maxI],h_group_dms[maxI]);
-     //system(cmd);
-     //sprintf(cmd,"echo %lu-%g-%d-%g | nc -4u -w1 10.10.1.10 11223 &",rawsample,h_group_peaks[maxI],h_group_filter_inds[maxI],h_group_dms[maxI]);
-     //system(cmd);
-     //sprintf(cmd,"echo %lu-%g-%d-%g | nc -4u -w1 10.10.1.1 11223 &",rawsample,h_group_peaks[maxI],h_group_filter_inds[maxI],h_group_dms[maxI]);
-     //system(cmd);
+     /*sprintf(cmd,"echo %lu-%g-%d-%g | nc -4u -w1 10.10.1.7 11223 &",rawsample,h_group_peaks[maxI],h_group_filter_inds[maxI],h_group_dms[maxI]);
+     cout << "Sending to dsa1: " << cmd << endl;
+     system(cmd);
+     sprintf(cmd,"echo %lu-%g-%d-%g | nc -4u -w1 10.10.1.8 11223 &",rawsample,h_group_peaks[maxI],h_group_filter_inds[maxI],h_group_dms[maxI]);
+     system(cmd);
+     sprintf(cmd,"echo %lu-%g-%d-%g | nc -4u -w1 10.10.1.9 11223 &",rawsample,h_group_peaks[maxI],h_group_filter_inds[maxI],h_group_dms[maxI]);
+     system(cmd);
+     sprintf(cmd,"echo %lu-%g-%d-%g | nc -4u -w1 10.10.1.10 11223 &",rawsample,h_group_peaks[maxI],h_group_filter_inds[maxI],h_group_dms[maxI]);
+     system(cmd);
+     sprintf(cmd,"echo %lu-%g-%d-%g | nc -4u -w1 10.10.1.1 11223 &",rawsample,h_group_peaks[maxI],h_group_filter_inds[maxI],h_group_dms[maxI]);
+     system(cmd);*/
      
      sprintf(filname,"%s/candidate_%d.fil",pl->params.output_dir,first_idx+h_group_begins[maxI]);
      output = fopen(filname,"wb");
