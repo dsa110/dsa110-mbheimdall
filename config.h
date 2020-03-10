@@ -14,7 +14,7 @@
 /* #undef HAVE_CUDA */
 
 /* Define if the DEDISP Library is present */
-/* #undef HAVE_DEDISP */
+#define HAVE_DEDISP 1
 
 /* Define to 1 if you have the <dlfcn.h> header file. */
 #define HAVE_DLFCN_H 1
@@ -110,7 +110,7 @@
 #define HAVE_SYS_TYPES_H 1
 
 /* Define if the THRUST Library is present */
-/* #undef HAVE_THRUST */
+#define HAVE_THRUST 1
 
 /* Define to 1 if you have the <unistd.h> header file. */
 #define HAVE_UNISTD_H 1
