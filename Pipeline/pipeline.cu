@@ -684,9 +684,9 @@ fprintf(dm_out,"%g\n",pl->h_dm_series[offset*8/pl->params.dm_nbits+l]);
 	notrig = 1;
 	cout << "WARNING: exceeded max giants/min, DM [" << dm_list[dm_idx] << "] space searched " << searched << "%" << endl;
 	break;
-      }
+    }
 
-      if (total_timer.getTime() > 7.75) {
+      if (total_timer.getTime() > 7.75) { // nbeams*(nsamps_gulp + max_delay + boxcar_max) * tsamp?  
 	too_many_giants = true;
 	float searched = ((float) dm_idx * 100) / (float) dm_count;
 	cout << "WARNING: exceeded max giants processed in 7.75s, DM [" << dm_list[dm_idx] << "] space searched " << searched << "%" << endl;
@@ -742,7 +742,8 @@ fprintf(dm_out,"%g\n",pl->h_dm_series[offset*8/pl->params.dm_nbits+l]);
 
      // record output
      if (giant_index < nsamps_computed + pl->params.boxcar_max/2) {
-     fprintf(giants_out,"%g %lu %lu %g %d %d %g %d\n",h_giant_peaks[i],filterbank_ind, samp_idx,samp_idx * pl->params.dt,h_giant_filter_inds[i],h_giant_dm_inds[i],dm_list[h_giant_dm_inds[i]],beam_no);
+     fprintf(giants_out,"a:%g b:%lu c:%lu d:%g e:%d f:%d g:%g h:%d\n",h_giant_peaks[i],filterbank_ind, samp_idx,samp_idx * pl->params.dt,h_giant_filter_inds[i],h_giant_dm_inds[i],dm_list[h_giant_dm_inds[i]],beam_no);
+     //fprintf(giants_out,"%g %lu %lu %g %d %d %g %d\n",h_giant_peaks[i],filterbank_ind, samp_idx,samp_idx * pl->params.dt,h_giant_filter_inds[i],h_giant_dm_inds[i],dm_list[h_giant_dm_inds[i]],beam_no);
      }
     }
    }
@@ -981,6 +982,7 @@ fprintf(dm_out,"%g\n",pl->h_dm_series[offset*8/pl->params.dm_nbits+l]);
 
      
      // dump data
+     // comment out the "nc" command for now, since they tell a non-existent buffer to send data. 
      /*sprintf(cmd,"echo %lu-%g-%d-%g | nc -4u -w1 10.10.1.7 11223 &",rawsample,h_group_peaks[maxI],h_group_filter_inds[maxI],h_group_dms[maxI]);
      cout << "Sending to dsa1: " << cmd << endl;
      system(cmd);
@@ -1015,7 +1017,7 @@ fprintf(dm_out,"%g\n",pl->h_dm_series[offset*8/pl->params.dm_nbits+l]);
             
    }
    
-      
+  fclose(giants_out);     
   fclose(cands_out);
   stop_timer(candidates_timer);
 
@@ -1033,8 +1035,13 @@ fprintf(dm_out,"%g\n",pl->h_dm_series[offset*8/pl->params.dm_nbits+l]);
   cout << "Process candidates time: " << candidates_timer.getTime() << endl;
   cout << "Total time:              " << total_timer.getTime() << endl;
 
-
-
+  
+  FILE *time_out;
+  char ofilet[200];
+  sprintf(ofilet,"%s/time.out",pl->params.output_dir);
+  time_out = fopen(ofilet,"a");
+  fprintf(time_out,"%g %g %g %g %g %g %g %g %g %g\n",memory_timer.getTime(),clean_timer.getTime(),dedisp_timer.getTime(),copy_timer.getTime(),baseline_timer.getTime(),normalise_timer.getTime(),filter_timer.getTime(),giants_timer.getTime(),candidates_timer.getTime(),total_timer.getTime());
+  fclose(time_out); 
   
   if( too_many_giants ) {
     return HD_TOO_MANY_EVENTS;
