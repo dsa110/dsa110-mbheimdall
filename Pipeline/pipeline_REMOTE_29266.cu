@@ -584,7 +584,6 @@ fprintf(dm_out,"%g\n",pl->h_dm_series[offset*8/pl->params.dm_nbits+l]);
     // For each boxcar filter
     // Note: We cannot detect pulse widths < current time resolution
 
-    // Will make it a command line option to double or linearly increase the filter width?  
     for( hd_size filter_width=min_filter_width;
          filter_width<=pl->params.boxcar_max;
          filter_width*=2 ) {
@@ -743,8 +742,8 @@ fprintf(dm_out,"%g\n",pl->h_dm_series[offset*8/pl->params.dm_nbits+l]);
 
      // record output
      if (giant_index < nsamps_computed + pl->params.boxcar_max/2) {
-     //fprintf(giants_out,"a:%g b:%lu c:%lu d:%g e:%d f:%d g:%g h:%d\n",h_giant_peaks[i],filterbank_ind, samp_idx,samp_idx * pl->params.dt,h_giant_filter_inds[i],h_giant_dm_inds[i],dm_list[h_giant_dm_inds[i]],beam_no);
-     fprintf(giants_out,"%g %lu %lu %g %d %d %g %d\n",h_giant_peaks[i],filterbank_ind, samp_idx,samp_idx * pl->params.dt,h_giant_filter_inds[i],h_giant_dm_inds[i],dm_list[h_giant_dm_inds[i]],beam_no);
+     fprintf(giants_out,"a:%g b:%lu c:%lu d:%g e:%d f:%d g:%g h:%d\n",h_giant_peaks[i],filterbank_ind, samp_idx,samp_idx * pl->params.dt,h_giant_filter_inds[i],h_giant_dm_inds[i],dm_list[h_giant_dm_inds[i]],beam_no);
+     //fprintf(giants_out,"%g %lu %lu %g %d %d %g %d\n",h_giant_peaks[i],filterbank_ind, samp_idx,samp_idx * pl->params.dt,h_giant_filter_inds[i],h_giant_dm_inds[i],dm_list[h_giant_dm_inds[i]],beam_no);
      }
     }
    }
@@ -984,8 +983,7 @@ fprintf(dm_out,"%g\n",pl->h_dm_series[offset*8/pl->params.dm_nbits+l]);
      
      // dump data
      // comment out the "nc" command for now, since they tell a non-existent buffer to send data. 
-     /*
-     sprintf(cmd,"echo %lu-%g-%d-%g | nc -4u -w1 10.10.1.7 11223 &",rawsample,h_group_peaks[maxI],h_group_filter_inds[maxI],h_group_dms[maxI]);
+     /*sprintf(cmd,"echo %lu-%g-%d-%g | nc -4u -w1 10.10.1.7 11223 &",rawsample,h_group_peaks[maxI],h_group_filter_inds[maxI],h_group_dms[maxI]);
      cout << "Sending to dsa1: " << cmd << endl;
      system(cmd);
      sprintf(cmd,"echo %lu-%g-%d-%g | nc -4u -w1 10.10.1.8 11223 &",rawsample,h_group_peaks[maxI],h_group_filter_inds[maxI],h_group_dms[maxI]);
@@ -995,8 +993,7 @@ fprintf(dm_out,"%g\n",pl->h_dm_series[offset*8/pl->params.dm_nbits+l]);
      sprintf(cmd,"echo %lu-%g-%d-%g | nc -4u -w1 10.10.1.10 11223 &",rawsample,h_group_peaks[maxI],h_group_filter_inds[maxI],h_group_dms[maxI]);
      system(cmd);
      sprintf(cmd,"echo %lu-%g-%d-%g | nc -4u -w1 10.10.1.1 11223 &",rawsample,h_group_peaks[maxI],h_group_filter_inds[maxI],h_group_dms[maxI]);
-     system(cmd);
-     */
+     system(cmd);*/
      
      sprintf(filname,"%s/candidate_%d.fil",pl->params.output_dir,first_idx+h_group_begins[maxI]);
      output = fopen(filname,"wb");
@@ -1038,12 +1035,12 @@ fprintf(dm_out,"%g\n",pl->h_dm_series[offset*8/pl->params.dm_nbits+l]);
   cout << "Process candidates time: " << candidates_timer.getTime() << endl;
   cout << "Total time:              " << total_timer.getTime() << endl;
 
+  
   FILE *time_out;
   char ofilet[200];
   sprintf(ofilet,"%s/time.out",pl->params.output_dir);
   time_out = fopen(ofilet,"a");
-  fprintf(time_out,"%d %g %g %g %d %g %g %g %g %g %g %g %g %g %g\n",giant_count,pl->params.dm_min,pl->params.dm_max,pl->params.dm_tol,pl->params.boxcar_max,memory_timer.getTime(),clean_timer.getTime(),dedisp_timer.getTime(),copy_timer.getTime(),baseline_timer.getTime(),normalise_timer.getTime(),filter_timer.getTime(),giants_timer.getTime(),candidates_timer.getTime(),total_timer.getTime());
-  //fprintf(time_out,"%d\n",pl->params.boxcar_max); # do not use %g 
+  fprintf(time_out,"%g %g %g %g %g %g %g %g %g %g\n",memory_timer.getTime(),clean_timer.getTime(),dedisp_timer.getTime(),copy_timer.getTime(),baseline_timer.getTime(),normalise_timer.getTime(),filter_timer.getTime(),giants_timer.getTime(),candidates_timer.getTime(),total_timer.getTime());
   fclose(time_out); 
   
   if( too_many_giants ) {

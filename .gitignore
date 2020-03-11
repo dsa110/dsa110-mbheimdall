@@ -1,5 +1,7 @@
 **/*.o
 **/*.lo
 **/*.a
+**/.**/*.o
 Makefile
 **/Makefile
+.gitignore
