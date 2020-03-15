@@ -92,6 +92,9 @@ int hd_parse_command_line(int argc, char* argv[], hd_params* params)
     else if( argv[i] == string("-boxcar_max") ) {
       params->boxcar_max = atoi(argv[++i]);
     }
+    else if( argv[i] == string("-n_boxcar_inc") ) {
+      params->nsnap = atoi(argv[++i]); 
+    }
     else if( argv[i] == string("-detect_thresh") ) {
       params->detect_thresh = atof(argv[++i]);
     }

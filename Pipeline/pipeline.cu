@@ -585,9 +585,17 @@ fprintf(dm_out,"%g\n",pl->h_dm_series[offset*8/pl->params.dm_nbits+l]);
     // Note: We cannot detect pulse widths < current time resolution
 
     // Will make it a command line option to double or linearly increase the filter width?  
-    for( hd_size filter_width=min_filter_width;
+    // boxcar filter loop starts 
+    /*for( hd_size filter_width=min_filter_width;
          filter_width<=pl->params.boxcar_max;
-         filter_width*=2 ) {
+         filter_width*=2 ) {*/
+      int boxcar_inc = pl->params.boxcar_max / pl->params.n_boxcar_inc;
+      cout << "Linear boxcar increments of " << boxcar_inc << endl; 
+      
+      for( hd_size filter_width=min_filter_width;
+         filter_width<=pl->params.boxcar_max;
+         filter_width+= boxcar_inc) {
+
       hd_size rel_filter_width = filter_width / cur_dm_scrunch;
       hd_size filter_idx = get_filter_index(filter_width);
       

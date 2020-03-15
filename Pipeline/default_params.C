@@ -21,6 +21,7 @@ void hd_set_default_params(hd_params* params) {
 	params->baseline_length = 3.0;
 	params->beam            = 0;
 	params->nbeams		= 1;
+	params->n_boxcar_inc    = 10; // number of boxcar filter width linear increments 
 	params->override_beam   = false;
 	params->nchans          = 1024;
 	params->dt              = 64e-6;

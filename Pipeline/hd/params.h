@@ -51,6 +51,8 @@ struct hd_params {
   // Single pulse search parameters
   hd_size  boxcar_max;     // Max boxcar width to convolve with
   hd_float detect_thresh;  // Detection threshold (units of std. dev.)
+  hd_size  n_boxcar_inc;   // Number of linear increments of boxcar width 
+
   
   hd_size  cand_sep_time;   // Min separation between candidates (in samples)
   hd_size  cand_sep_filter; // Min separation between candidates (in filters)
