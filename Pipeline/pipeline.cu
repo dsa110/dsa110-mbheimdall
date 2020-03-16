@@ -235,6 +235,7 @@ hd_error hd_create_pipeline(hd_pipeline* pipeline_, hd_params params) {
     cout << "f0     = " << params.f0 << endl;
     cout << "df     = " << params.df << endl;
     cout << "nsnap     = " << params.nsnap << endl;
+    cout << "Linear boxcar increments of " << boxcar_inc << endl; 
   }
   
   if( params.verbosity >= 2 ) {
@@ -586,11 +587,12 @@ fprintf(dm_out,"%g\n",pl->h_dm_series[offset*8/pl->params.dm_nbits+l]);
 
     // Will make it a command line option to double or linearly increase the filter width?  
     // boxcar filter loop starts 
-    /*for( hd_size filter_width=min_filter_width;
+    int boxcar_inc = pl->params.boxcar_max / pl->params.n_boxcar_inc;
+
+   /* for( hd_size filter_width=min_filter_width;
          filter_width<=pl->params.boxcar_max;
          filter_width*=2 ) {*/
-      int boxcar_inc = pl->params.boxcar_max / pl->params.n_boxcar_inc;
-      cout << "Linear boxcar increments of " << boxcar_inc << endl; 
+      
       
       for( hd_size filter_width=min_filter_width;
          filter_width<=pl->params.boxcar_max;
@@ -1050,7 +1052,7 @@ fprintf(dm_out,"%g\n",pl->h_dm_series[offset*8/pl->params.dm_nbits+l]);
   char ofilet[200];
   sprintf(ofilet,"%s/time.out",pl->params.output_dir);
   time_out = fopen(ofilet,"a");
-  fprintf(time_out,"%d %g %g %g %d %g %g %g %g %g %g %g %g %g %g\n",giant_count,pl->params.dm_min,pl->params.dm_max,pl->params.dm_tol,pl->params.boxcar_max,memory_timer.getTime(),clean_timer.getTime(),dedisp_timer.getTime(),copy_timer.getTime(),baseline_timer.getTime(),normalise_timer.getTime(),filter_timer.getTime(),giants_timer.getTime(),candidates_timer.getTime(),total_timer.getTime());
+  fprintf(time_out,"%d %g %g %g %d %d %g %g %g %g %g %g %g %g %g %g\n",giant_count,pl->params.dm_min,pl->params.dm_max,pl->params.dm_tol,pl->params.boxcar_max,pl->params.n_boxcar_inc,memory_timer.getTime(),clean_timer.getTime(),dedisp_timer.getTime(),copy_timer.getTime(),baseline_timer.getTime(),normalise_timer.getTime(),filter_timer.getTime(),giants_timer.getTime(),candidates_timer.getTime(),total_timer.getTime());
   //fprintf(time_out,"%d\n",pl->params.boxcar_max); # do not use %g 
   fclose(time_out); 
   

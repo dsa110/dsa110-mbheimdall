@@ -93,7 +93,7 @@ int hd_parse_command_line(int argc, char* argv[], hd_params* params)
       params->boxcar_max = atoi(argv[++i]);
     }
     else if( argv[i] == string("-n_boxcar_inc") ) {
-      params->nsnap = atoi(argv[++i]); 
+      params->n_boxcar_inc = atoi(argv[++i]); 
     }
     else if( argv[i] == string("-detect_thresh") ) {
       params->detect_thresh = atof(argv[++i]);
@@ -188,6 +188,7 @@ void hd_print_usage()
   cout << "    -zap_chans start end     zap all channels between start and end channels inclusive" << endl;
   cout << "    -max_giant_rate nevents  limit the maximum number of individual detections per minute to nevents" << endl;
   cout << "    -nbeams                  The number of beams to process simultaneously." << endl;
+  cout << "    -n_boxcar_inc            The number of linear boxcar filter width increments." << endl; 
   cout << "    -dm_pulse_width num      TBA" << endl;
   cout << "    -dm_nbits num            TBA" << endl;
   cout << "    -scrunching num          TBA" << endl;
