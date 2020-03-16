@@ -235,7 +235,6 @@ hd_error hd_create_pipeline(hd_pipeline* pipeline_, hd_params params) {
     cout << "f0     = " << params.f0 << endl;
     cout << "df     = " << params.df << endl;
     cout << "nsnap     = " << params.nsnap << endl;
-    cout << "Linear boxcar increments of " << boxcar_inc << endl; 
   }
   
   if( params.verbosity >= 2 ) {
@@ -589,11 +588,15 @@ fprintf(dm_out,"%g\n",pl->h_dm_series[offset*8/pl->params.dm_nbits+l]);
     // boxcar filter loop starts 
     int boxcar_inc = pl->params.boxcar_max / pl->params.n_boxcar_inc;
 
-   /* for( hd_size filter_width=min_filter_width;
+    /*for( hd_size filter_width=min_filter_width;
          filter_width<=pl->params.boxcar_max;
          filter_width*=2 ) {*/
-      
-      
+        
+      /*for( hd_size filter_width=min_filter_width;
+       filter_width<=pl->params.boxcar_max;
+       (if (2>1) filter_width+= boxcar_inc; 
+        else filter_width*=2; ) ) {*/
+
       for( hd_size filter_width=min_filter_width;
          filter_width<=pl->params.boxcar_max;
          filter_width+= boxcar_inc) {
