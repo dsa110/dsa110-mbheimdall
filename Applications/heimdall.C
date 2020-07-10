@@ -182,12 +182,15 @@ cout << "params.df " << params.df << endl;
   }
   nsamps_read = nsamps_read/params.nbeams;
   size_t overlap = 0;
+
+  //cout << "total_nsamps =" << total_nsamps << endl;   
   while( nsamps_read && !stop_requested )
   {
     
     if ( params.verbosity >= 1 ) { 
       cout << "Executing pipeline on new gulp of " << nsamps_gulp + max_delay + boxcar_max
            << " samples..." << endl;
+      cout << "total_nsamps =" << total_nsamps << endl;
     }
     //pipeline_timer.start();
 

@@ -588,18 +588,20 @@ fprintf(dm_out,"%g\n",pl->h_dm_series[offset*8/pl->params.dm_nbits+l]);
     // boxcar filter loop starts 
     int boxcar_inc = pl->params.boxcar_max / pl->params.n_boxcar_inc;
 
-    /*for( hd_size filter_width=min_filter_width;
-         filter_width<=pl->params.boxcar_max;
-         filter_width*=2 ) {*/
+    
         
       /*for( hd_size filter_width=min_filter_width;
        filter_width<=pl->params.boxcar_max;
        (if (2>1) filter_width+= boxcar_inc; 
         else filter_width*=2; ) ) {*/
 
+      /*for( hd_size filter_width=min_filter_width;
+         filter_width<=pl->params.boxcar_max;
+         filter_width+= boxcar_inc) {*/
+
       for( hd_size filter_width=min_filter_width;
          filter_width<=pl->params.boxcar_max;
-         filter_width+= boxcar_inc) {
+         filter_width*=2 ) {
 
       hd_size rel_filter_width = filter_width / cur_dm_scrunch;
       hd_size filter_idx = get_filter_index(filter_width);
@@ -755,9 +757,13 @@ fprintf(dm_out,"%g\n",pl->h_dm_series[offset*8/pl->params.dm_nbits+l]);
 	 else filterbank_ind = block_no * block_size * pl->params.nbeams + (beam_no-1) * block_size + giant_index + nsamps - 2*overlap;
 
      // record output
+     fprintf(giants_out,"print");
+
      if (giant_index < nsamps_computed + pl->params.boxcar_max/2) {
      //fprintf(giants_out,"a:%g b:%lu c:%lu d:%g e:%d f:%d g:%g h:%d\n",h_giant_peaks[i],filterbank_ind, samp_idx,samp_idx * pl->params.dt,h_giant_filter_inds[i],h_giant_dm_inds[i],dm_list[h_giant_dm_inds[i]],beam_no);
      fprintf(giants_out,"%g %lu %lu %g %d %d %g %d\n",h_giant_peaks[i],filterbank_ind, samp_idx,samp_idx * pl->params.dt,h_giant_filter_inds[i],h_giant_dm_inds[i],dm_list[h_giant_dm_inds[i]],beam_no);
+     
+     cout << 'giant.cand lines test' << h_giant_peaks[i] << endl;
      }
     }
    }
