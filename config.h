@@ -11,7 +11,7 @@
 #define HAVE_BOOST 1
 
 /* Define if the CUDA library is present */
-/* #undef HAVE_CUDA */
+#define HAVE_CUDA 1
 
 /* Define if the DEDISP Library is present */
 #define HAVE_DEDISP 1
@@ -54,7 +54,7 @@
 /* #undef HAVE_POW */
 
 /* Define if the PSRDADA Library is present */
-#define HAVE_PSRDADA 1
+/* #undef HAVE_PSRDADA */
 
 /* Define to 1 if your system has a GNU libc compatible `realloc' function,
    and to 0 otherwise. */
