@@ -28,7 +28,7 @@ PSRDadaRingBuffer::PSRDadaRingBuffer (key_t dada_id) : DataSource ()
   dada_key = dada_id;
 
   // create the HDU
-  hdu = dada_hdu_create (0);
+  hdu = dada_hdu_create ();
 
   // set the shared memory key
   dada_hdu_set_key(hdu, dada_id);
