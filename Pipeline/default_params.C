@@ -18,7 +18,7 @@ void hd_set_default_params(hd_params* params) {
 	params->nsamps_gulp     = 262144;//131072; // TODO: Check that this is good
 	// TODO: This is no longer being used
 	params->dm_gulp_size    = 2048;//256;    // TODO: Check that this is good
-	params->baseline_length = 3.0;
+	params->baseline_length = 2.0;
 	params->beam            = 0;
 	params->nbeams		= 1;
 	params->n_boxcar_inc    = 10; // number of boxcar filter width linear increments 
@@ -29,15 +29,15 @@ void hd_set_default_params(hd_params* params) {
 	params->df              = -.390625;
 	params->dm_min          = 0.0;
 	params->dm_max          = 1000.0;
-	params->dm_tol          = 1.15;
+	params->dm_tol          = 1.35;
 	params->dm_pulse_width  = 40;//e-6; // TODO: Check why this was here
 	params->dm_nbits        = 32;//8;
 	params->use_scrunching  = true;
 	params->scrunch_tol     = 1.15;
 	params->rfi_tol         = 5.0;//1e-6;//1e-9; TODO: Should this be a probability instead?
 	params->rfi_min_beams   = 8;
-	params->boxcar_max      = 256;//2048;//512; // Actual width, in linear filter implementation
-	params->detect_thresh   = 6.25;
+	params->boxcar_max      = 32;//2048;//512; // Actual width, in linear filter implementation
+	params->detect_thresh   = 6.5;
 	params->cand_sep_time   = 2;
 	// Note: These have very little effect on the candidates, but could be important
 	//         to capture (*rare*) coincident events.
@@ -48,7 +48,7 @@ void hd_set_default_params(hd_params* params) {
 	params->nsnap = 1; // number of SNAPs
   
   // TODO: This still needs tuning!
-  params->max_giant_rate  = 2000;      // Max allowed giants per minute, 0 == no limit
+  params->max_giant_rate  = 2000000;      // Max allowed giants per minute, 0 == no limit
 
   params->min_tscrunch_width = 256; // Filter width at which to begin tscrunching
 
