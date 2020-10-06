@@ -601,10 +601,11 @@ fprintf(dm_out,"%g\n",pl->h_dm_series[offset*8/pl->params.dm_nbits+l]);
 
       for( hd_size filter_width=min_filter_width;
          filter_width<=pl->params.boxcar_max;
-         filter_width*=2 ) {
-
+	   //         filter_width*=2 ) { // power of two boxcar
+	   filter_width+=1 ) {
       hd_size rel_filter_width = filter_width / cur_dm_scrunch;
-      hd_size filter_idx = get_filter_index(filter_width);
+      //hd_size filter_idx = get_filter_index(filter_width); // power of two boxcar
+      hd_size filter_idx = filter_width;
       
       if( pl->params.verbosity >= 4 ) {
         cout << "Filtering each beam at width of " << filter_width << endl;
@@ -694,14 +695,14 @@ fprintf(dm_out,"%g\n",pl->h_dm_series[offset*8/pl->params.dm_nbits+l]);
       // Bail if the candidate rate is too high
       hd_size total_giant_count = d_giant_peaks.size();
       hd_float data_length_mins = nsamps * pl->params.dt / 60.0;
-      /*if ( pl->params.max_giant_rate && ( total_giant_count / data_length_mins > pl->params.max_giant_rate ) ) {
+      if ( pl->params.max_giant_rate && ( total_giant_count / data_length_mins > pl->params.max_giant_rate ) ) {
 	too_many_giants = true;
 	float searched = ((float) dm_idx * 100) / (float) dm_count;
 	notrig = 1;
 	cout << "WARNING: exceeded max giants/min, DM [" << dm_list[dm_idx] << "] space searched " << searched << "%" << endl;
 	break;
     }
-
+      /*
       if (total_timer.getTime() > 7.75) { // nbeams*(nsamps_gulp + max_delay + boxcar_max) * tsamp?  
 	too_many_giants = true;
 	float searched = ((float) dm_idx * 100) / (float) dm_count;
@@ -716,10 +717,10 @@ fprintf(dm_out,"%g\n",pl->h_dm_series[offset*8/pl->params.dm_nbits+l]);
   hd_size giant_count = d_giant_peaks.size();
   cout << "Giant count = " << giant_count << endl;
  
-   FILE *giants_out;
+  /*FILE *giants_out;
    char ofileg[200];
    sprintf(ofileg,"%s/giants.cand",pl->params.output_dir);
-   giants_out = fopen(ofileg,"a");
+   giants_out = fopen(ofileg,"a");*/
   thrust::host_vector<hd_float> h_giant_peaks;
   thrust::host_vector<hd_size>  h_giant_inds;
   thrust::host_vector<hd_size>  h_giant_begins;
@@ -729,6 +730,8 @@ fprintf(dm_out,"%g\n",pl->h_dm_series[offset*8/pl->params.dm_nbits+l]);
   thrust::host_vector<hd_size>  h_giant_members;
   thrust::host_vector<hd_float> h_giant_dms;
 
+  //cout << "opened gant out file" << endl;
+
   h_giant_peaks = d_giant_peaks;
   h_giant_inds = d_giant_inds;
   h_giant_begins = d_giant_begins;
@@ -737,7 +740,7 @@ fprintf(dm_out,"%g\n",pl->h_dm_series[offset*8/pl->params.dm_nbits+l]);
   h_giant_dm_inds = d_giant_dm_inds;
   h_giant_members = d_giant_members;
 
-   // FILE WRITING VR
+   // FILE WRITING  - prior to clustering
    hd_size samp_idx;
    hd_size beam_no;
    hd_size giant_index;
@@ -745,7 +748,7 @@ fprintf(dm_out,"%g\n",pl->h_dm_series[offset*8/pl->params.dm_nbits+l]);
    hd_size block_no;
    hd_size overlap = pl->params.boxcar_max + dedisp_get_max_delay(pl->dedispersion_plan);
    hd_size block_size = nsamps - overlap;
-   if (first_idx > 0) {
+   /*   if (first_idx > 0) {
    for( hd_size i=0; i<h_giant_inds.size(); ++i ) {
      if (h_giant_peaks[i] > pl->params.detect_thresh) {
      //samp_idx = first_idx + h_giant_inds[i];
@@ -757,17 +760,18 @@ fprintf(dm_out,"%g\n",pl->h_dm_series[offset*8/pl->params.dm_nbits+l]);
 	 else filterbank_ind = block_no * block_size * pl->params.nbeams + (beam_no-1) * block_size + giant_index + nsamps - 2*overlap;
 
      // record output
-     fprintf(giants_out,"print");
+	 // fprintf(giants_out,"print");
 
+	 
      if (giant_index < nsamps_computed + pl->params.boxcar_max/2) {
      //fprintf(giants_out,"a:%g b:%lu c:%lu d:%g e:%d f:%d g:%g h:%d\n",h_giant_peaks[i],filterbank_ind, samp_idx,samp_idx * pl->params.dt,h_giant_filter_inds[i],h_giant_dm_inds[i],dm_list[h_giant_dm_inds[i]],beam_no);
      fprintf(giants_out,"%g %lu %lu %g %d %d %g %d\n",h_giant_peaks[i],filterbank_ind, samp_idx,samp_idx * pl->params.dt,h_giant_filter_inds[i],h_giant_dm_inds[i],dm_list[h_giant_dm_inds[i]],beam_no);
      
      cout << 'giant.cand lines test' << h_giant_peaks[i] << endl;
      }
-    }
+     }
    }
-  }    
+  }  */  
   start_timer(candidates_timer);
 
   thrust::host_vector<hd_float> h_group_peaks;
@@ -964,7 +968,7 @@ fprintf(dm_out,"%g\n",pl->h_dm_series[offset*8/pl->params.dm_nbits+l]);
      if (group_sample_ind < *nsamps_processed) fprintf(cands_out,"%g %lu %lu %g %d %d %g %d %d\n",h_group_peaks[i],filterbank_ind2,samp_idx2,samp_idx2 * pl->params.dt,h_group_filter_inds[i],h_group_dm_inds[i],h_group_dms[i],h_group_members[i],group_beam_no);
      
      // if pulse is dump-able
-     if ((samp_idx>100000) && h_group_peaks[i]>8.0 && group_sample_ind < nsamps_computed) {
+     if (h_group_peaks[i]>10.0 && group_sample_ind < nsamps_computed) {
 
        // find peak SNR so we're only dumping one per block
        if (h_group_peaks[i]>maxSNR) {
@@ -972,17 +976,6 @@ fprintf(dm_out,"%g\n",pl->h_dm_series[offset*8/pl->params.dm_nbits+l]);
 	 maxI = i;
        }
        	   
-     }
-
-     // if pulse may be from frb
-     else if ((samp_idx>100000) && h_group_dms[i]>185.0 && h_group_dms[i]<195.0 && h_group_peaks[i]>7.0) {
-       
-       // find peak SNR so we're only dumping one per block
-       if (h_group_peaks[i]>maxFRB) {
-	 maxFRB = h_group_peaks[i];
-	 maxI = i;
-       }
-
      }
        
    }
@@ -1039,7 +1032,7 @@ fprintf(dm_out,"%g\n",pl->h_dm_series[offset*8/pl->params.dm_nbits+l]);
             
    }
    
-  fclose(giants_out);     
+   //fclose(giants_out);     
   fclose(cands_out);
   stop_timer(candidates_timer);
 
@@ -1056,14 +1049,6 @@ fprintf(dm_out,"%g\n",pl->h_dm_series[offset*8/pl->params.dm_nbits+l]);
   cout << "Find giants time:        " << giants_timer.getTime() << endl;
   cout << "Process candidates time: " << candidates_timer.getTime() << endl;
   cout << "Total time:              " << total_timer.getTime() << endl;
-
-  FILE *time_out;
-  char ofilet[200];
-  sprintf(ofilet,"%s/time.out",pl->params.output_dir);
-  time_out = fopen(ofilet,"a");
-  fprintf(time_out,"%d %g %g %g %d %d %g %g %g %g %g %g %g %g %g %g\n",giant_count,pl->params.dm_min,pl->params.dm_max,pl->params.dm_tol,pl->params.boxcar_max,pl->params.n_boxcar_inc,memory_timer.getTime(),clean_timer.getTime(),dedisp_timer.getTime(),copy_timer.getTime(),baseline_timer.getTime(),normalise_timer.getTime(),filter_timer.getTime(),giants_timer.getTime(),candidates_timer.getTime(),total_timer.getTime());
-  //fprintf(time_out,"%d\n",pl->params.boxcar_max); # do not use %g 
-  fclose(time_out); 
   
   if( too_many_giants ) {
     return HD_TOO_MANY_EVENTS;
@@ -1073,9 +1058,6 @@ fprintf(dm_out,"%g\n",pl->h_dm_series[offset*8/pl->params.dm_nbits+l]);
   }
 
   
-
-  //free(h_perm_fil_p);
-  //free(h_fil);
   
 }
 

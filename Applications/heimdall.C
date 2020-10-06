@@ -114,10 +114,10 @@ int main(int argc, char* argv[])
 
   float tsamp = data_source->get_tsamp() / 1000000;
   size_t stride = data_source->get_stride();
-  cout << stride << endl;
+  //cout << stride << endl;
   params.beam_count = 10; 
-  cout << params.beam_count << endl;
-  cout << params.nchans << endl;
+  //cout << params.beam_count << endl;
+  //cout << params.nchans << endl;
   size_t nbits  = data_source->get_nbit();
 
   params.nchans = data_source->get_nchan();
@@ -148,14 +148,15 @@ derror = dedisp_generate_dm_list(dedispersion_plan,
                                    params.dm_max,
                                    params.dm_pulse_width,
                                    params.dm_tol);
-
-cout << "params.nchans " << params.nchans << endl;
-cout << "params.dt " << params.dt << endl;
-cout << "params.f0 " << params.f0 << endl;
-cout << "params.df " << params.df << endl; 
-
+/*
+ cout << "params.nchans " << params.nchans << endl;
+ cout << "params.dt " << params.dt << endl;
+ cout << "params.f0 " << params.f0 << endl;
+ cout << "params.df " << params.df << endl; 
+*/
+ 
   size_t max_delay = dedisp_get_max_delay(dedispersion_plan);
-  cout << "max delay " << max_delay << endl;
+  //cout << "max delay " << max_delay << endl;
   size_t boxcar_max = params.boxcar_max;
   
   if ( params.verbosity >= 2)
@@ -165,7 +166,6 @@ cout << "params.df " << params.df << endl;
   if( params.verbosity >= 1 ) {
     cout << "Beginning data processing, requesting " << nsamps_gulp << " samples" << endl;
   }
-
 
   // start a timer for the whole pipeline
   //Stopwatch pipeline_timer;
@@ -195,7 +195,7 @@ cout << "params.df " << params.df << endl;
     //pipeline_timer.start();
 
     // copy output file if needed, and reset total_nsamps
-    if (total_nsamps > 54931640) { // 7200 seconds
+    /*    if (total_nsamps > 54931640) { // 7200 seconds
 
       cur_nsamps += total_nsamps;
       total_nsamps = 0;
@@ -203,7 +203,7 @@ cout << "params.df " << params.df << endl;
       fseq++;
       system(cmd);
 
-    }
+      }*/
     
     hd_size nsamps_processed;
     error = hd_execute(pipeline, &filterbank[0], nsamps_gulp + max_delay + boxcar_max, nbits,
