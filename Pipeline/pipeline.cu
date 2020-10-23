@@ -691,7 +691,7 @@ fprintf(dm_out,"%g\n",pl->h_dm_series[offset*8/pl->params.dm_nbits+l]);
       d_giant_members.resize(d_giant_peaks.size(), 1);
 
       stop_timer(giants_timer);
-      
+      /*
       // Bail if the candidate rate is too high
       hd_size total_giant_count = d_giant_peaks.size();
       hd_float data_length_mins = nsamps * pl->params.dt / 60.0;
@@ -702,7 +702,7 @@ fprintf(dm_out,"%g\n",pl->h_dm_series[offset*8/pl->params.dm_nbits+l]);
 	cout << "WARNING: exceeded max giants/min, DM [" << dm_list[dm_idx] << "] space searched " << searched << "%" << endl;
 	break;
     }
-      /*
+      
       if (total_timer.getTime() > 7.75) { // nbeams*(nsamps_gulp + max_delay + boxcar_max) * tsamp?  
 	too_many_giants = true;
 	float searched = ((float) dm_idx * 100) / (float) dm_count;
@@ -717,10 +717,10 @@ fprintf(dm_out,"%g\n",pl->h_dm_series[offset*8/pl->params.dm_nbits+l]);
   hd_size giant_count = d_giant_peaks.size();
   cout << "Giant count = " << giant_count << endl;
  
-  /*FILE *giants_out;
+  FILE *giants_out;
    char ofileg[200];
    sprintf(ofileg,"%s/giants.cand",pl->params.output_dir);
-   giants_out = fopen(ofileg,"a");*/
+   giants_out = fopen(ofileg,"a");
   thrust::host_vector<hd_float> h_giant_peaks;
   thrust::host_vector<hd_size>  h_giant_inds;
   thrust::host_vector<hd_size>  h_giant_begins;
@@ -748,7 +748,8 @@ fprintf(dm_out,"%g\n",pl->h_dm_series[offset*8/pl->params.dm_nbits+l]);
    hd_size block_no;
    hd_size overlap = pl->params.boxcar_max + dedisp_get_max_delay(pl->dedispersion_plan);
    hd_size block_size = nsamps - overlap;
-   /*   if (first_idx > 0) {
+   
+   if (first_idx > 0) {
    for( hd_size i=0; i<h_giant_inds.size(); ++i ) {
      if (h_giant_peaks[i] > pl->params.detect_thresh) {
      //samp_idx = first_idx + h_giant_inds[i];
@@ -767,11 +768,12 @@ fprintf(dm_out,"%g\n",pl->h_dm_series[offset*8/pl->params.dm_nbits+l]);
      //fprintf(giants_out,"a:%g b:%lu c:%lu d:%g e:%d f:%d g:%g h:%d\n",h_giant_peaks[i],filterbank_ind, samp_idx,samp_idx * pl->params.dt,h_giant_filter_inds[i],h_giant_dm_inds[i],dm_list[h_giant_dm_inds[i]],beam_no);
      fprintf(giants_out,"%g %lu %lu %g %d %d %g %d\n",h_giant_peaks[i],filterbank_ind, samp_idx,samp_idx * pl->params.dt,h_giant_filter_inds[i],h_giant_dm_inds[i],dm_list[h_giant_dm_inds[i]],beam_no);
      
-     cout << 'giant.cand lines test' << h_giant_peaks[i] << endl;
+     //cout << 'giant.cand lines test' << h_giant_peaks[i] << endl;
      }
      }
    }
-  }  */  
+  }  
+  
   start_timer(candidates_timer);
 
   thrust::host_vector<hd_float> h_group_peaks;
@@ -890,13 +892,13 @@ fprintf(dm_out,"%g\n",pl->h_dm_series[offset*8/pl->params.dm_nbits+l]);
 
       strftime (buffer, 64, HD_TIMESTR, (struct tm*) gmtime(&(pl->params.utc_start)));
 
-      oss <<  buffer << " ";
+      //oss <<  buffer << " ";
 
       time_t now = pl->params.utc_start + (time_t) (first_idx / pl->params.spectra_per_second);
       strftime (buffer, 64, HD_TIMESTR, (struct tm*) gmtime(&now));
-      oss << buffer << " ";
+      //oss << buffer << " ";
 
-      oss << first_idx << " ";
+      /*oss << first_idx << " ";
       oss << ss.str() << " ";
       oss << h_group_peaks.size() << endl;
       client_socket << oss.str();
@@ -919,6 +921,41 @@ fprintf(dm_out,"%g\n",pl->h_dm_series[offset*8/pl->params.dm_nbits+l]);
         client_socket << oss.str();
         oss.flush();
         oss.str("");
+      }*/
+
+      // gc: write giants in socket 
+      //oss << first_idx << " ";
+      //oss << ss.str() << " ";
+      //oss << h_giant_inds.size() << endl;
+      //client_socket << oss.str();
+      //oss.flush();
+      //oss.str("");
+
+      for( hd_size i=0; i<h_giant_inds.size(); ++i ) {
+        if (h_giant_peaks[i] > pl->params.detect_thresh) {
+          //samp_idx = first_idx + h_giant_inds[i];
+          giant_index = h_giant_inds[i]%nsamps;
+          beam_no = h_giant_inds[i]/nsamps;
+          samp_idx = first_idx +giant_index;
+          block_no = (giant_index + first_idx)/(nsamps - pl->params.boxcar_max - dedisp_get_max_delay(pl->dedispersion_plan));
+          if (giant_index < overlap) filterbank_ind = block_no * block_size * pl->params.nbeams + (beam_no+1) * block_size + giant_index - overlap;
+          else filterbank_ind = block_no * block_size * pl->params.nbeams + (beam_no-1) * block_size + giant_index + nsamps - 2*overlap;
+          // record output  
+          if (giant_index < nsamps_computed + pl->params.boxcar_max/2) {
+            oss << h_giant_peaks[i] << "\t"
+                << filterbank_ind << "\t"
+                << samp_idx << "\t" 
+                << samp_idx * pl->params.dt << "\t"
+                << h_giant_filter_inds[i] << "\t"
+                << h_giant_dm_inds[i] << "\t"
+                << dm_list[h_giant_dm_inds[i]] << "\t"
+                << beam_no << endl;
+
+            client_socket << oss.str();
+            oss.flush();
+            //oss.str("");
+          }
+        }
       }
       // client_socket should close when it goes out of scope...
     }
