@@ -892,7 +892,7 @@ fprintf(dm_out,"%g\n",pl->h_dm_series[offset*8/pl->params.dm_nbits+l]);
 
       strftime (buffer, 64, HD_TIMESTR, (struct tm*) gmtime(&(pl->params.utc_start)));
 
-      //oss <<  buffer << " ";
+      oss <<  buffer << " ";
 
       time_t now = pl->params.utc_start + (time_t) (first_idx / pl->params.spectra_per_second);
       strftime (buffer, 64, HD_TIMESTR, (struct tm*) gmtime(&now));
@@ -953,7 +953,7 @@ fprintf(dm_out,"%g\n",pl->h_dm_series[offset*8/pl->params.dm_nbits+l]);
 
             client_socket << oss.str();
             oss.flush();
-            //oss.str("");
+            oss.str("");
           }
         }
       }
