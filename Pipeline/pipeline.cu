@@ -892,7 +892,7 @@ fprintf(dm_out,"%g\n",pl->h_dm_series[offset*8/pl->params.dm_nbits+l]);
 
       strftime (buffer, 64, HD_TIMESTR, (struct tm*) gmtime(&(pl->params.utc_start)));
 
-      oss <<  buffer << " ";
+      //oss <<  buffer << " ";
 
       time_t now = pl->params.utc_start + (time_t) (first_idx / pl->params.spectra_per_second);
       strftime (buffer, 64, HD_TIMESTR, (struct tm*) gmtime(&now));
@@ -942,13 +942,13 @@ fprintf(dm_out,"%g\n",pl->h_dm_series[offset*8/pl->params.dm_nbits+l]);
           else filterbank_ind = block_no * block_size * pl->params.nbeams + (beam_no-1) * block_size + giant_index + nsamps - 2*overlap;
           // record output  
           if (giant_index < nsamps_computed + pl->params.boxcar_max/2) {
-            oss << h_giant_peaks[i] << "\t"
-                << filterbank_ind << "\t"
-                << samp_idx << "\t" 
-                << samp_idx * pl->params.dt << "\t"
-                << h_giant_filter_inds[i] << "\t"
-                << h_giant_dm_inds[i] << "\t"
-                << dm_list[h_giant_dm_inds[i]] << "\t"
+            oss << h_giant_peaks[i] << " "
+                << filterbank_ind << " "
+                << samp_idx << " " 
+                << samp_idx * pl->params.dt << " "
+                << h_giant_filter_inds[i] << " "
+                << h_giant_dm_inds[i] << " "
+                << dm_list[h_giant_dm_inds[i]] << " "
                 << beam_no << endl;
 
             client_socket << oss.str();
