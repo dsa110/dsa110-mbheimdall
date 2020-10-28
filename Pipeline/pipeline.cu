@@ -691,24 +691,24 @@ fprintf(dm_out,"%g\n",pl->h_dm_series[offset*8/pl->params.dm_nbits+l]);
       d_giant_members.resize(d_giant_peaks.size(), 1);
 
       stop_timer(giants_timer);
-      /*
+      
       // Bail if the candidate rate is too high
       hd_size total_giant_count = d_giant_peaks.size();
       hd_float data_length_mins = nsamps * pl->params.dt / 60.0;
-      if ( pl->params.max_giant_rate && ( total_giant_count / data_length_mins > pl->params.max_giant_rate ) ) {
+      /*if ( pl->params.max_giant_rate && ( total_giant_count / data_length_mins > pl->params.max_giant_rate ) ) {
 	too_many_giants = true;
 	float searched = ((float) dm_idx * 100) / (float) dm_count;
 	notrig = 1;
 	cout << "WARNING: exceeded max giants/min, DM [" << dm_list[dm_idx] << "] space searched " << searched << "%" << endl;
 	break;
-    }
+	}*/
       
-      if (total_timer.getTime() > 7.75) { // nbeams*(nsamps_gulp + max_delay + boxcar_max) * tsamp?  
+      if (total_timer.getTime() > 3.5) { // nbeams*(nsamps_gulp + max_delay + boxcar_max) * tsamp?  
 	too_many_giants = true;
 	float searched = ((float) dm_idx * 100) / (float) dm_count;
-	cout << "WARNING: exceeded max giants processed in 7.75s, DM [" << dm_list[dm_idx] << "] space searched " << searched << "%" << endl;
+	cout << "WARNING: exceeded max giants processed in 3.5s, DM [" << dm_list[dm_idx] << "] space searched " << searched << "%" << endl;
 	break;
-      }*/
+      }
       
     } //close filter width loop  
     
@@ -1005,7 +1005,7 @@ fprintf(dm_out,"%g\n",pl->h_dm_series[offset*8/pl->params.dm_nbits+l]);
      if (group_sample_ind < *nsamps_processed) fprintf(cands_out,"%g %lu %lu %g %d %d %g %d %d\n",h_group_peaks[i],filterbank_ind2,samp_idx2,samp_idx2 * pl->params.dt,h_group_filter_inds[i],h_group_dm_inds[i],h_group_dms[i],h_group_members[i],group_beam_no);
      
      // if pulse is dump-able
-     if (h_group_peaks[i]>10.0 && group_sample_ind < nsamps_computed) {
+     if (h_group_peaks[i]>8.0 && h_group_dms[i]>100.0 && group_sample_ind < nsamps_computed) {
 
        // find peak SNR so we're only dumping one per block
        if (h_group_peaks[i]>maxSNR) {
