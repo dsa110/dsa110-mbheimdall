@@ -1047,7 +1047,7 @@ fprintf(dm_out,"%g\n",pl->h_dm_series[offset*8/pl->params.dm_nbits+l]);
      system(cmd);
      */
      
-     sprintf(filname,"%s/candidate_%d.fil",pl->params.output_dir,first_idx+h_group_begins[maxI]);
+     sprintf(filname,"%s/candidate_%g_%g_%d.fil",pl->params.output_dir,h_group_peaks[maxI],h_group_dms[maxI],h_group_filter_inds[maxI]);
      output = fopen(filname,"wb");
      send_string("HEADER_START");
      send_string("source_name");
