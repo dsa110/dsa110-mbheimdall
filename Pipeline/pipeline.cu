@@ -962,12 +962,13 @@ fprintf(dm_out,"%g\n",pl->h_dm_series[offset*8/pl->params.dm_nbits+l]);
 	}
 	// client_socket should close when it goes out of scope...
       }
-      catch (SocketException& e )
-	{
-	  std::cerr << "SocketException was caught:" << e.description() << "\n";
-	}
-      
     }
+    catch (SocketException& e )
+      {
+	std::cerr << "SocketException was caught:" << e.description() << "\n";
+      }
+      
+    
   }
     
    FILE *cands_out;
