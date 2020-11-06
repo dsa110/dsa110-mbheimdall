@@ -755,7 +755,7 @@ fprintf(dm_out,"%g\n",pl->h_dm_series[offset*8/pl->params.dm_nbits+l]);
      if (h_giant_peaks[i] > pl->params.detect_thresh) {
      //samp_idx = first_idx + h_giant_inds[i];
      giant_index = h_giant_inds[i]%nsamps;
-     beam_no = h_giant_inds[i]/nsamps;
+     beam_no = h_giant_inds[i]/nsamps + pl->params.beam;
      samp_idx = first_idx +giant_index;
          block_no = (giant_index + first_idx)/(nsamps - pl->params.boxcar_max - dedisp_get_max_delay(pl->dedispersion_plan));
          if (giant_index < overlap) filterbank_ind = block_no * block_size * pl->params.nbeams + (beam_no+1) * block_size + giant_index - overlap;
@@ -938,7 +938,7 @@ fprintf(dm_out,"%g\n",pl->h_dm_series[offset*8/pl->params.dm_nbits+l]);
 	  if (h_giant_peaks[i] > pl->params.detect_thresh) {
 	    //samp_idx = first_idx + h_giant_inds[i];
 	    giant_index = h_giant_inds[i]%nsamps;
-	    beam_no = h_giant_inds[i]/nsamps;
+	    beam_no = h_giant_inds[i]/nsamps + pl->params.beam;
 	    samp_idx = first_idx +giant_index;
 	    block_no = (giant_index + first_idx)/(nsamps - pl->params.boxcar_max - dedisp_get_max_delay(pl->dedispersion_plan));
 	    if (giant_index < overlap) filterbank_ind = block_no * block_size * pl->params.nbeams + (beam_no+1) * block_size + giant_index - overlap;
@@ -999,7 +999,7 @@ fprintf(dm_out,"%g\n",pl->h_dm_series[offset*8/pl->params.dm_nbits+l]);
    for( hd_size i=0; i<h_group_peaks.size(); ++i ) {
 
      group_sample_ind = h_group_inds[i]%nsamps;
-     group_beam_no = h_group_inds[i]/nsamps;
+     group_beam_no = h_group_inds[i]/nsamps + pl->params.beam;
      samp_idx2 = first_idx + group_sample_ind; 
      block_no2 = (group_sample_ind + first_idx)/(nsamps - pl->params.boxcar_max - dedisp_get_max_delay(pl->dedispersion_plan));
      if (group_sample_ind < overlap) filterbank_ind2 = block_no2 * block_size * pl->params.nbeams + (beam_no-1) * block_size + group_sample_ind - overlap;
