@@ -182,6 +182,7 @@ derror = dedisp_generate_dm_list(dedispersion_plan,
   }
   nsamps_read = nsamps_read/params.nbeams;
   size_t overlap = 0;
+  size_t gulp_idx = 0;
 
   //cout << "total_nsamps =" << total_nsamps << endl;   
   while( nsamps_read && !stop_requested )
@@ -207,7 +208,8 @@ derror = dedisp_generate_dm_list(dedispersion_plan,
     
     hd_size nsamps_processed;
     error = hd_execute(pipeline, &filterbank[0], nsamps_gulp + max_delay + boxcar_max, nbits,
-                       total_nsamps, cur_nsamps, &nsamps_processed);
+                       total_nsamps, cur_nsamps, &nsamps_processed, gulp_idx);
+    gulp_idx ++;
     if (error == HD_NO_ERROR)
     {
       if (params.verbosity >= 1)

@@ -285,9 +285,10 @@ hd_error hd_create_pipeline(hd_pipeline* pipeline_, hd_params params) {
 
 hd_error hd_execute(hd_pipeline pl,
                     const hd_byte* h_filterbank, hd_size nsamps, hd_size nbits,
-                    hd_size first_idx, hd_size iidx, hd_size* nsamps_processed) {
+                    hd_size first_idx, hd_size iidx, hd_size* nsamps_processed, hd_size gulp_idx) {
   hd_error error = HD_NO_ERROR;
-  
+
+  cout << "working on gulp " << gulp_idx << endl;
   
   Stopwatch total_timer;
   Stopwatch memory_timer;
@@ -720,7 +721,7 @@ fprintf(dm_out,"%g\n",pl->h_dm_series[offset*8/pl->params.dm_nbits+l]);
   FILE *giants_out;
    char ofileg[200];
    sprintf(ofileg,"%s/giants.cand",pl->params.output_dir);
-   giants_out = fopen(ofileg,"a");
+   //giants_out = fopen(ofileg,"a");
   thrust::host_vector<hd_float> h_giant_peaks;
   thrust::host_vector<hd_size>  h_giant_inds;
   thrust::host_vector<hd_size>  h_giant_begins;
@@ -764,15 +765,15 @@ fprintf(dm_out,"%g\n",pl->h_dm_series[offset*8/pl->params.dm_nbits+l]);
 	 // fprintf(giants_out,"print");
 
 	 
-     if (giant_index < nsamps_computed + pl->params.boxcar_max/2) {
+	 /*if (giant_index < nsamps_computed + pl->params.boxcar_max/2) {
      //fprintf(giants_out,"a:%g b:%lu c:%lu d:%g e:%d f:%d g:%g h:%d\n",h_giant_peaks[i],filterbank_ind, samp_idx,samp_idx * pl->params.dt,h_giant_filter_inds[i],h_giant_dm_inds[i],dm_list[h_giant_dm_inds[i]],beam_no);
      fprintf(giants_out,"%g %lu %lu %g %d %d %g %d\n",h_giant_peaks[i],filterbank_ind, samp_idx,samp_idx * pl->params.dt,h_giant_filter_inds[i],h_giant_dm_inds[i],dm_list[h_giant_dm_inds[i]],beam_no);
      
      //cout << 'giant.cand lines test' << h_giant_peaks[i] << endl;
-     }
+     }*/
      }
    }
-  }  
+   } 
   
   start_timer(candidates_timer);
 
@@ -898,9 +899,9 @@ fprintf(dm_out,"%g\n",pl->h_dm_series[offset*8/pl->params.dm_nbits+l]);
       strftime (buffer, 64, HD_TIMESTR, (struct tm*) gmtime(&now));
       //oss << buffer << " ";
 
-      /*oss << first_idx << " ";
-      oss << ss.str() << " ";
-      oss << h_group_peaks.size() << endl;
+      /*oss << first_idx << endl;
+      //oss << ss.str() << " ";
+      //oss << h_group_peaks.size() << endl;
       client_socket << oss.str();
       oss.flush();
       oss.str("");
@@ -921,51 +922,54 @@ fprintf(dm_out,"%g\n",pl->h_dm_series[offset*8/pl->params.dm_nbits+l]);
         client_socket << oss.str();
         oss.flush();
         oss.str("");
-      }*/
+	}*/
 
       // gc: write giants in socket 
-      //oss << first_idx << " ";
+      oss << gulp_idx << endl;
       //oss << ss.str() << " ";
       //oss << h_giant_inds.size() << endl;
-      //client_socket << oss.str();
-      //oss.flush();
-      //oss.str("");
+      client_socket << oss.str();
+      oss.flush();
+      oss.str("");
 
-      for( hd_size i=0; i<h_giant_inds.size(); ++i ) {
-        if (h_giant_peaks[i] > pl->params.detect_thresh) {
-          //samp_idx = first_idx + h_giant_inds[i];
-          giant_index = h_giant_inds[i]%nsamps;
-          beam_no = h_giant_inds[i]/nsamps;
-          samp_idx = first_idx +giant_index;
-          block_no = (giant_index + first_idx)/(nsamps - pl->params.boxcar_max - dedisp_get_max_delay(pl->dedispersion_plan));
-          if (giant_index < overlap) filterbank_ind = block_no * block_size * pl->params.nbeams + (beam_no+1) * block_size + giant_index - overlap;
-          else filterbank_ind = block_no * block_size * pl->params.nbeams + (beam_no-1) * block_size + giant_index + nsamps - 2*overlap;
-          // record output  
-          if (giant_index < nsamps_computed + pl->params.boxcar_max/2) {
-            oss << h_giant_peaks[i] << " "
-                << filterbank_ind << " "
-                << samp_idx << " " 
-                << samp_idx * pl->params.dt << " "
-                << h_giant_filter_inds[i] << " "
-                << h_giant_dm_inds[i] << " "
-                << dm_list[h_giant_dm_inds[i]] << " "
-                << beam_no << endl;
+      if (gulp_idx > 1) {
 
-            client_socket << oss.str();
-            oss.flush();
-            oss.str("");
-          }
-        }
+	for( hd_size i=0; i<h_giant_inds.size(); ++i ) {
+	  if (h_giant_peaks[i] > pl->params.detect_thresh) {
+	    //samp_idx = first_idx + h_giant_inds[i];
+	    giant_index = h_giant_inds[i]%nsamps;
+	    beam_no = h_giant_inds[i]/nsamps;
+	    samp_idx = first_idx +giant_index;
+	    block_no = (giant_index + first_idx)/(nsamps - pl->params.boxcar_max - dedisp_get_max_delay(pl->dedispersion_plan));
+	    if (giant_index < overlap) filterbank_ind = block_no * block_size * pl->params.nbeams + (beam_no+1) * block_size + giant_index - overlap;
+	    else filterbank_ind = block_no * block_size * pl->params.nbeams + (beam_no-1) * block_size + giant_index + nsamps - 2*overlap;
+	    // record output  
+	    if (giant_index < nsamps_computed + pl->params.boxcar_max/2) {
+	      oss << h_giant_peaks[i] << " "
+		  << filterbank_ind << " "
+		  << samp_idx << " " 
+		  << samp_idx * pl->params.dt << " "
+		  << h_giant_filter_inds[i] << " "
+		  << h_giant_dm_inds[i] << " "
+		  << dm_list[h_giant_dm_inds[i]] << " "
+		  << beam_no << endl;
+	      
+	      client_socket << oss.str();
+	      oss.flush();
+	      oss.str("");
+	    }
+	  }
+	}
+	// client_socket should close when it goes out of scope...
       }
-      // client_socket should close when it goes out of scope...
+      catch (SocketException& e )
+	{
+	  std::cerr << "SocketException was caught:" << e.description() << "\n";
+	}
+      
     }
-    catch (SocketException& e )
-    {
-      std::cerr << "SocketException was caught:" << e.description() << "\n";
-    }
-
   }
-
+    
    FILE *cands_out;
    char ofile[200];
    float S1, S2;
@@ -993,35 +997,33 @@ fprintf(dm_out,"%g\n",pl->h_dm_series[offset*8/pl->params.dm_nbits+l]);
    hd_size block_no2;
    hd_size filterbank_ind2;
    for( hd_size i=0; i<h_group_peaks.size(); ++i ) {
-     //samp_idx2 = first_idx + h_group_begins[i];
+
      group_sample_ind = h_group_inds[i]%nsamps;
      group_beam_no = h_group_inds[i]/nsamps;
      samp_idx2 = first_idx + group_sample_ind; 
-     //filterbank_ind2 = first_idx*pl->params.nbeams + nsamps*(beam_no-1) +group_sample_ind;
      block_no2 = (group_sample_ind + first_idx)/(nsamps - pl->params.boxcar_max - dedisp_get_max_delay(pl->dedispersion_plan));
-	 if (group_sample_ind < overlap) filterbank_ind2 = block_no2 * block_size * pl->params.nbeams + (beam_no-1) * block_size + group_sample_ind - overlap;
-         else filterbank_ind2 = block_no2 * block_size * pl->params.nbeams + (beam_no-1) * block_size + group_sample_ind + nsamps - 2*overlap;
+     if (group_sample_ind < overlap) filterbank_ind2 = block_no2 * block_size * pl->params.nbeams + (beam_no-1) * block_size + group_sample_ind - overlap;
+     else filterbank_ind2 = block_no2 * block_size * pl->params.nbeams + (beam_no-1) * block_size + group_sample_ind + nsamps - 2*overlap;
      // record output
-     if (group_sample_ind < *nsamps_processed) fprintf(cands_out,"%g %lu %lu %g %d %d %g %d %d\n",h_group_peaks[i],filterbank_ind2,samp_idx2,samp_idx2 * pl->params.dt,h_group_filter_inds[i],h_group_dm_inds[i],h_group_dms[i],h_group_members[i],group_beam_no);
+     if (group_sample_ind < *nsamps_processed && gulp_idx > 1) fprintf(cands_out,"%g %lu %lu %g %d %d %g %d %d\n",h_group_peaks[i],filterbank_ind2,samp_idx2,samp_idx2 * pl->params.dt,h_group_filter_inds[i],h_group_dm_inds[i],h_group_dms[i],h_group_members[i],group_beam_no);
      
      // if pulse is dump-able
-     if (h_group_peaks[i]>8.0 && h_group_dms[i]>100.0 && group_sample_ind < nsamps_computed) {
+     if (((h_group_peaks[i]>8.0 && h_group_dms[i]>100.0 && group_sample_ind < nsamps_computed && h_group_filter_inds[i]<10) || (h_group_peaks[i]>7.0 && h_group_dms[i]>52.0 && h_group_dms[i]<63.0 && group_sample_ind < nsamps_computed && h_group_filter_inds[i]<3)) && (gulp_idx > 1)) {
 
        // find peak SNR so we're only dumping one per block
        if (h_group_peaks[i]>maxSNR) {
 	 maxSNR = h_group_peaks[i];
 	 maxI = i;
        }
-       	   
-     }
        
+     }
+     
    }
 
    // check for too many cands per block. 
    if (h_group_peaks.size()>0 && maxI!=-1) {
 
      samp_idx = first_idx + h_group_begins[maxI];
-     rawsample = (samp_idx+iidx-3815); // VR wuz hre - edit for different stuff
      s1 = h_group_begins[maxI]-50;
      if (s1<0) s1=0;
      s2 = h_group_ends[maxI]+int((0.000761*h_group_dms[maxI])/pl->params.dt)+50+(int)(h_group_filter_inds[maxI]);
@@ -1029,25 +1031,8 @@ fprintf(dm_out,"%g\n",pl->h_dm_series[offset*8/pl->params.dm_nbits+l]);
 	 
      output_data.resize((s2-s1)*(pl->params.nchans*nbits/8));
      std::copy(pl->h_clean_filterbank.begin()+s1*(pl->params.nchans*nbits/8),pl->h_clean_filterbank.begin()+s2*(pl->params.nchans*nbits/8),output_data.begin());
-
      
-     // dump data
-     // comment out the "nc" command for now, since they tell a non-existent buffer to send data. 
-     /*
-     sprintf(cmd,"echo %lu-%g-%d-%g | nc -4u -w1 10.10.1.7 11223 &",rawsample,h_group_peaks[maxI],h_group_filter_inds[maxI],h_group_dms[maxI]);
-     cout << "Sending to dsa1: " << cmd << endl;
-     system(cmd);
-     sprintf(cmd,"echo %lu-%g-%d-%g | nc -4u -w1 10.10.1.8 11223 &",rawsample,h_group_peaks[maxI],h_group_filter_inds[maxI],h_group_dms[maxI]);
-     system(cmd);
-     sprintf(cmd,"echo %lu-%g-%d-%g | nc -4u -w1 10.10.1.9 11223 &",rawsample,h_group_peaks[maxI],h_group_filter_inds[maxI],h_group_dms[maxI]);
-     system(cmd);
-     sprintf(cmd,"echo %lu-%g-%d-%g | nc -4u -w1 10.10.1.10 11223 &",rawsample,h_group_peaks[maxI],h_group_filter_inds[maxI],h_group_dms[maxI]);
-     system(cmd);
-     sprintf(cmd,"echo %lu-%g-%d-%g | nc -4u -w1 10.10.1.1 11223 &",rawsample,h_group_peaks[maxI],h_group_filter_inds[maxI],h_group_dms[maxI]);
-     system(cmd);
-     */
-     
-     sprintf(filname,"%s/candidate_%g_%g_%d.fil",pl->params.output_dir,h_group_peaks[maxI],h_group_dms[maxI],h_group_filter_inds[maxI]);
+     sprintf(filname,"%s/candidate_%g_%g_%d_%d.fil",pl->params.output_dir,h_group_peaks[maxI],h_group_dms[maxI],h_group_filter_inds[maxI],samp_idx);
      output = fopen(filname,"wb");
      send_string("HEADER_START");
      send_string("source_name");
@@ -1070,30 +1055,30 @@ fprintf(dm_out,"%g\n",pl->h_dm_series[offset*8/pl->params.dm_nbits+l]);
    }
    
    //fclose(giants_out);     
-  fclose(cands_out);
-  stop_timer(candidates_timer);
+   fclose(cands_out);
+   stop_timer(candidates_timer);
 
 
-  stop_timer(total_timer);
-  
-  cout << "Mem alloc time:          " << memory_timer.getTime() << endl;
-  cout << "0-DM cleaning time:      " << clean_timer.getTime() << endl;
-  cout << "Dedispersion time:       " << dedisp_timer.getTime() << endl;
-  cout << "Copy time:               " << copy_timer.getTime() << endl;
-  cout << "Baselining time:         " << baseline_timer.getTime() << endl;
-  cout << "Normalisation time:      " << normalise_timer.getTime() << endl;
-  cout << "Filtering time:          " << filter_timer.getTime() << endl;
-  cout << "Find giants time:        " << giants_timer.getTime() << endl;
-  cout << "Process candidates time: " << candidates_timer.getTime() << endl;
-  cout << "Total time:              " << total_timer.getTime() << endl;
-  
+   stop_timer(total_timer);
+   
+   cout << "Mem alloc time:          " << memory_timer.getTime() << endl;
+   cout << "0-DM cleaning time:      " << clean_timer.getTime() << endl;
+   cout << "Dedispersion time:       " << dedisp_timer.getTime() << endl;
+   cout << "Copy time:               " << copy_timer.getTime() << endl;
+   cout << "Baselining time:         " << baseline_timer.getTime() << endl;
+   cout << "Normalisation time:      " << normalise_timer.getTime() << endl;
+   cout << "Filtering time:          " << filter_timer.getTime() << endl;
+   cout << "Find giants time:        " << giants_timer.getTime() << endl;
+   cout << "Process candidates time: " << candidates_timer.getTime() << endl;
+   cout << "Total time:              " << total_timer.getTime() << endl;
+   
   if( too_many_giants ) {
     return HD_TOO_MANY_EVENTS;
   }
   else {
     return HD_NO_ERROR;
   }
-
+  
   
   
 }
