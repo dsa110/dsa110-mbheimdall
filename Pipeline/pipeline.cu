@@ -750,7 +750,7 @@ fprintf(dm_out,"%g\n",pl->h_dm_series[offset*8/pl->params.dm_nbits+l]);
    hd_size overlap = pl->params.boxcar_max + dedisp_get_max_delay(pl->dedispersion_plan);
    hd_size block_size = nsamps - overlap;
    
-   if (first_idx > 0) {
+   if (first_idx > 0 && gulp_idx > 1) {
    for( hd_size i=0; i<h_giant_inds.size(); ++i ) {
      if (h_giant_peaks[i] > pl->params.detect_thresh) {
      //samp_idx = first_idx + h_giant_inds[i];
@@ -764,10 +764,11 @@ fprintf(dm_out,"%g\n",pl->h_dm_series[offset*8/pl->params.dm_nbits+l]);
      // record output
 	 // fprintf(giants_out,"print");
 
-	 
-	 /*if (giant_index < nsamps_computed + pl->params.boxcar_max/2) {
-     //fprintf(giants_out,"a:%g b:%lu c:%lu d:%g e:%d f:%d g:%g h:%d\n",h_giant_peaks[i],filterbank_ind, samp_idx,samp_idx * pl->params.dt,h_giant_filter_inds[i],h_giant_dm_inds[i],dm_list[h_giant_dm_inds[i]],beam_no);
-     fprintf(giants_out,"%g %lu %lu %g %d %d %g %d\n",h_giant_peaks[i],filterbank_ind, samp_idx,samp_idx * pl->params.dt,h_giant_filter_inds[i],h_giant_dm_inds[i],dm_list[h_giant_dm_inds[i]],beam_no);
+
+	 // write giants
+	 /*if (giant_index < nsamps_computed + pl->params.boxcar_max/2 ) {
+	   //fprintf(giants_out,"a:%g b:%lu c:%lu d:%g e:%d f:%d g:%g h:%d\n",h_giant_peaks[i],filterbank_ind, samp_idx,samp_idx * pl->params.dt,h_giant_filter_inds[i],h_giant_dm_inds[i],dm_list[h_giant_dm_inds[i]],beam_no);
+	   fprintf(giants_out,"%g %lu %lu %g %d %d %g %d\n",h_giant_peaks[i],filterbank_ind, samp_idx,samp_idx * pl->params.dt,h_giant_filter_inds[i],h_giant_dm_inds[i],dm_list[h_giant_dm_inds[i]],beam_no);
      
      //cout << 'giant.cand lines test' << h_giant_peaks[i] << endl;
      }*/
@@ -962,12 +963,13 @@ fprintf(dm_out,"%g\n",pl->h_dm_series[offset*8/pl->params.dm_nbits+l]);
 	}
 	// client_socket should close when it goes out of scope...
       }
-      catch (SocketException& e )
-	{
-	  std::cerr << "SocketException was caught:" << e.description() << "\n";
-	}
-      
     }
+    catch (SocketException& e )
+      {
+	std::cerr << "SocketException was caught:" << e.description() << "\n";
+      }
+      
+    
   }
     
    FILE *cands_out;
@@ -1008,7 +1010,7 @@ fprintf(dm_out,"%g\n",pl->h_dm_series[offset*8/pl->params.dm_nbits+l]);
      if (group_sample_ind < *nsamps_processed && gulp_idx > 1) fprintf(cands_out,"%g %lu %lu %g %d %d %g %d %d\n",h_group_peaks[i],filterbank_ind2,samp_idx2,samp_idx2 * pl->params.dt,h_group_filter_inds[i],h_group_dm_inds[i],h_group_dms[i],h_group_members[i],group_beam_no);
      
      // if pulse is dump-able
-     if (((h_group_peaks[i]>8.0 && h_group_dms[i]>100.0 && group_sample_ind < nsamps_computed && h_group_filter_inds[i]<10) || (h_group_peaks[i]>7.0 && h_group_dms[i]>52.0 && h_group_dms[i]<63.0 && group_sample_ind < nsamps_computed && h_group_filter_inds[i]<3)) && (gulp_idx > 1)) {
+     if (((h_group_peaks[i]>8.0 && group_sample_ind < nsamps_computed && h_group_filter_inds[i]<10) || (h_group_peaks[i]>7.0 && h_group_dms[i]>52.0 && h_group_dms[i]<63.0 && group_sample_ind < nsamps_computed && h_group_filter_inds[i]<3)) && (gulp_idx > 1)) {
 
        // find peak SNR so we're only dumping one per block
        if (h_group_peaks[i]>maxSNR) {
