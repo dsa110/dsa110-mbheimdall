@@ -256,6 +256,9 @@ derror = dedisp_generate_dm_list(dedispersion_plan,
     // at the end of data, never execute the pipeline
     if (nsamps_read < (nsamps_gulp - overlap)*nsnap) // why < ? not > ? 
       stop_requested = 1;
+
+    cout << "Successfully processed a total of " << total_nsamps << " samples." << endl;
+
   }
  
   // final iteration for nsamps which is not a multiple of gulp size - overlap
@@ -290,10 +293,9 @@ derror = dedisp_generate_dm_list(dedispersion_plan,
     total_nsamps += nsamps_processed;
     }*/
    
-  if( params.verbosity >= 1 ) {
-    cout << "Successfully processed a total of " << total_nsamps
-         << " samples." << endl;
-  }
+  //if( params.verbosity >= 1 ) {
+  
+    //}
     
   if( params.verbosity >= 1 ) {
     cout << "Shutting down..." << endl;
