@@ -933,7 +933,7 @@ fprintf(dm_out,"%g\n",pl->h_dm_series[offset*8/pl->params.dm_nbits+l]);
       oss.flush();
       oss.str("");
 
-      if (gulp_idx > 1) {
+      if (gulp_idx > 1 && giant_count < 10000) {
 
 	for( hd_size i=0; i<h_giant_inds.size(); ++i ) {
 	  if (h_giant_peaks[i] > pl->params.detect_thresh) {
