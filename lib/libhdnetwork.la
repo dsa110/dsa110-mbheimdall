@@ -38,4 +38,4 @@ dlopen=''
 dlpreopen=''
 
 # Directory that this library needs to be installed in:
-libdir='/home/dsa/dsa110-mbheimdall/lib'
+libdir='/home/ubuntu/proj/dsa110-shell/dsa110-mbheimdall/lib'

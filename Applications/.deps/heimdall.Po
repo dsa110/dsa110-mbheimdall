@@ -104,6 +104,12 @@ heimdall.o: heimdall.C /usr/include/stdc-predef.h \
  /usr/include/x86_64-linux-gnu/bits/stdlib-float.h \
  /usr/include/x86_64-linux-gnu/bits/stdlib.h \
  ../Pipeline/hd/parse_command_line.h ../Pipeline/hd/params.h ../config.h \
+ /usr/local/include/dada_hdu.h /usr/local/include/multilog.h \
+ /usr/include/syslog.h /usr/include/x86_64-linux-gnu/sys/syslog.h \
+ /usr/include/x86_64-linux-gnu/bits/syslog-path.h \
+ /usr/include/x86_64-linux-gnu/bits/syslog.h /usr/local/include/ipcio.h \
+ /usr/local/include/ipcbuf.h /usr/include/inttypes.h \
+ /usr/lib/gcc/x86_64-linux-gnu/5/include/stdint.h /usr/include/stdint.h \
  ../Pipeline/hd/types.h /usr/include/c++/5/cstddef \
  ../Pipeline/hd/default_params.h ../Pipeline/hd/pipeline.h \
  ../Pipeline/hd/error.h /usr/local/include/dedisp.h \
@@ -124,8 +130,8 @@ heimdall.o: heimdall.C /usr/include/stdc-predef.h \
  /usr/local/cuda/include/texture_types.h \
  /usr/local/cuda/include/cuda_device_runtime_api.h \
  ../Formats/hd/DataSource.h ../Formats/hd/SigprocFile.h \
- ../Pipeline/hd/stopwatch.h /usr/include/c++/5/ctime \
- /usr/include/x86_64-linux-gnu/sys/time.h
+ ../Formats/hd/PSRDadaRingBuffer.h ../Pipeline/hd/stopwatch.h \
+ /usr/include/c++/5/ctime /usr/include/x86_64-linux-gnu/sys/time.h
 
 /usr/include/stdc-predef.h:
 
@@ -415,6 +421,28 @@ heimdall.o: heimdall.C /usr/include/stdc-predef.h \
 
 ../config.h:
 
+/usr/local/include/dada_hdu.h:
+
+/usr/local/include/multilog.h:
+
+/usr/include/syslog.h:
+
+/usr/include/x86_64-linux-gnu/sys/syslog.h:
+
+/usr/include/x86_64-linux-gnu/bits/syslog-path.h:
+
+/usr/include/x86_64-linux-gnu/bits/syslog.h:
+
+/usr/local/include/ipcio.h:
+
+/usr/local/include/ipcbuf.h:
+
+/usr/include/inttypes.h:
+
+/usr/lib/gcc/x86_64-linux-gnu/5/include/stdint.h:
+
+/usr/include/stdint.h:
+
 ../Pipeline/hd/types.h:
 
 /usr/include/c++/5/cstddef:
@@ -464,6 +492,8 @@ heimdall.o: heimdall.C /usr/include/stdc-predef.h \
 ../Formats/hd/DataSource.h:
 
 ../Formats/hd/SigprocFile.h:
+
+../Formats/hd/PSRDadaRingBuffer.h:
 
 ../Pipeline/hd/stopwatch.h:
 
