@@ -1010,7 +1010,7 @@ fprintf(dm_out,"%g\n",pl->h_dm_series[offset*8/pl->params.dm_nbits+l]);
      if (group_sample_ind < *nsamps_processed && gulp_idx > 1) fprintf(cands_out,"%g %lu %lu %g %d %d %g %d %d\n",h_group_peaks[i],filterbank_ind2,samp_idx2,samp_idx2 * pl->params.dt,h_group_filter_inds[i],h_group_dm_inds[i],h_group_dms[i],h_group_members[i],group_beam_no);
      
      // if pulse is dump-able
-     if (((h_group_peaks[i]>8.0 && group_sample_ind < nsamps_computed && h_group_filter_inds[i]<10 && h_group_dms[i]>20.0) || (h_group_peaks[i]>7.0 && h_group_dms[i]>52.0 && h_group_dms[i]<63.0 && group_sample_ind < nsamps_computed && h_group_filter_inds[i]<3)) && (gulp_idx > 1)) {
+     if (((h_group_peaks[i]>8.0 && group_sample_ind < nsamps_computed && h_group_filter_inds[i]<14 && h_group_dms[i]>20.0) || (h_group_peaks[i]>7.0 && h_group_dms[i]>52.0 && h_group_dms[i]<63.0 && group_sample_ind < nsamps_computed && h_group_filter_inds[i]<3)) && (gulp_idx > 1)) {
 
        // find peak SNR so we're only dumping one per block
        if (h_group_peaks[i]>maxSNR) {
@@ -1034,7 +1034,7 @@ fprintf(dm_out,"%g\n",pl->h_dm_series[offset*8/pl->params.dm_nbits+l]);
      output_data.resize((s2-s1)*(pl->params.nchans*nbits/8));
      std::copy(pl->h_clean_filterbank.begin()+s1*(pl->params.nchans*nbits/8),pl->h_clean_filterbank.begin()+s2*(pl->params.nchans*nbits/8),output_data.begin());
      
-     sprintf(filname,"%s/candidate_%g_%g_%d_%d.fil",pl->params.output_dir,h_group_peaks[maxI],h_group_dms[maxI],h_group_filter_inds[maxI],samp_idx);
+     sprintf(filname,"%s/candidate_%g_%g_%d_%d_%d.fil",pl->params.output_dir,h_group_peaks[maxI],h_group_dms[maxI],h_group_filter_inds[maxI],samp_idx,h_group_inds[maxI]/nsamps + pl->params.beam);
      output = fopen(filname,"wb");
      send_string("HEADER_START");
      send_string("source_name");
