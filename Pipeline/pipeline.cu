@@ -1034,7 +1034,7 @@ fprintf(dm_out,"%g\n",pl->h_dm_series[offset*8/pl->params.dm_nbits+l]);
      output_data.resize((s2-s1)*(pl->params.nchans*nbits/8));
      std::copy(pl->h_clean_filterbank.begin()+s1*(pl->params.nchans*nbits/8),pl->h_clean_filterbank.begin()+s2*(pl->params.nchans*nbits/8),output_data.begin());
      
-     sprintf(filname,"%s/candidate_%g_%g_%d_%d_%d.fil",pl->params.output_dir,h_group_peaks[maxI],h_group_dms[maxI],h_group_filter_inds[maxI],samp_idx,h_group_inds[maxI]/nsamps + pl->params.beam);
+     sprintf(filname,"%s/candidate_%g_%g_%d_%d_%d.fil",pl->params.output_dir,h_group_peaks[maxI],h_group_dms[maxI],h_group_filter_inds[maxI],first_idx + (h_group_inds[maxI]%nsamps),h_group_inds[maxI]/nsamps + pl->params.beam);
      output = fopen(filname,"wb");
      send_string("HEADER_START");
      send_string("source_name");
