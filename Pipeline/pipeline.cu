@@ -774,7 +774,7 @@ fprintf(dm_out,"%g\n",pl->h_dm_series[offset*8/pl->params.dm_nbits+l]);
      }*/
      }
    }
-   } 
+   
   
   start_timer(candidates_timer);
 
@@ -1059,7 +1059,7 @@ fprintf(dm_out,"%g\n",pl->h_dm_series[offset*8/pl->params.dm_nbits+l]);
    //fclose(giants_out);     
    fclose(cands_out);
    stop_timer(candidates_timer);
-
+   }
 
    stop_timer(total_timer);
    
