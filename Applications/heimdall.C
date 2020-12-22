@@ -166,8 +166,7 @@ derror = dedisp_generate_dm_list(dedispersion_plan,
   nsamps_read = nsamps_read/params.nbeams;
   size_t overlap = 0;
 
-  while( nsamps_read && !stop_requested )
-  {
+  while( nsamps_read && !stop_requested ) {
     
     if ( params.verbosity >= 1 ) { 
       cout << "Executing pipeline on new gulp of " << nsamps_gulp + max_delay + boxcar_max
@@ -176,17 +175,16 @@ derror = dedisp_generate_dm_list(dedispersion_plan,
     }
 
     // copy output file if needed, and reset total_nsamps
-   /* char cmd[200];
-    
+    char cmd[200];
     if (total_nsamps > 54931640) { // 7200 seconds
-
+      cout << "--copying output file, total_nsamps = 0--" << endl;
       cur_nsamps += total_nsamps;
       total_nsamps = 0;
       sprintf(cmd,"mv /mnt/nfs/data/heimdall/heimdall.cand /mnt/nfs/data/heimdall/heimdall_%d.cand",fseq);
       fseq++;
       system(cmd);
 
-    } */
+    }
     
     hd_size nsamps_processed;
     error = hd_execute(pipeline, &filterbank[0], nsamps_gulp + max_delay + boxcar_max, nbits,
@@ -212,7 +210,7 @@ derror = dedisp_generate_dm_list(dedispersion_plan,
     if (params.verbosity >= 1)
       cout << "Main: nsamps_processed=" << nsamps_processed << endl;
 
-    if (total_nsamps == 0) total_nsamps += nsamps_gulp - max_delay - boxcar_max;// - max_delay - boxcar_max;
+    if (total_nsamps == 0) total_nsamps += nsamps_gulp - max_delay - boxcar_max;
     else total_nsamps += nsamps_processed;
     
     for (int i = 0; i < params.nbeams; i++){ 
@@ -230,8 +228,7 @@ derror = dedisp_generate_dm_list(dedispersion_plan,
   }
  
   if( params.verbosity >= 1 ) {
-    cout << "Successfully processed a total of " << total_nsamps
-         << " samples." << endl;
+    cout << "Successfully processed a total of " << total_nsamps << " samples." << endl;
     cout << "Shutting down..." << endl;
   }
   

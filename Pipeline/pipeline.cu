@@ -152,9 +152,6 @@ hd_error allocate_gpu(const hd_pipeline pl) {
   // TODO: This is just a simple proc-->GPU heuristic to get us started
   int gpu_count;
   cudaGetDeviceCount(&gpu_count);
-  //int proc_idx;
-  //MPI_Comm comm = pl->communicator;
-  //MPI_Comm_rank(comm, &proc_idx);
   int proc_idx = pl->params.beam;
   int gpu_idx = pl->params.gpu_id;
   
@@ -286,8 +283,9 @@ hd_error hd_create_pipeline(hd_pipeline* pipeline_, hd_params params) {
 hd_error hd_execute(hd_pipeline pl,
                     const hd_byte* h_filterbank, hd_size nsamps, hd_size nbits,
                     hd_size first_idx, hd_size iidx, hd_size* nsamps_processed) {
+  cout << "        first_idx = " << first_idx << "        iidx = " << iidx << endl;
+
   hd_error error = HD_NO_ERROR;
-  
   
   Stopwatch total_timer;
   Stopwatch memory_timer;
@@ -356,8 +354,7 @@ hd_error hd_execute(hd_pipeline pl,
   
   const dedisp_size* scrunch_factors =
     dedisp_get_dt_factors(pl->dedispersion_plan);
-  if (pl->params.verbosity >= 3 ) 
-  {
+  if (pl->params.verbosity >= 3 ) {
     cout << "DM List for " << pl->params.dm_min << " to " << pl->params.dm_max << endl;
     for( hd_size i=0; i<dm_count; ++i ) {
       cout << dm_list[i] << endl;
@@ -435,19 +432,6 @@ hd_error hd_execute(hd_pipeline pl,
                               in, in_nbits, in_stride,
                               out, out_nbits, out_stride,
                               flags);
-/*FILE *dedisp_out;
-   char ofiledo[200];
-   sprintf(ofiledo,"%s/dedisp_out.cand",pl->params.output_dir);
-dedisp_out = fopen(ofiledo,"a");
-*hd_float* dummy;
-int* dummy2;
-for (int i=0; i < pl->h_dm_series.size()/4;i++)  {
-dummy = (hd_float*)&pl->h_dm_series[i*4];
-dummy2 = (int*)&pl->h_dm_series[i*4];
-cout << "int " << *dummy2 << endl;
-cout << *dummy << endl;
-fprintf(dedisp_out,"%g\n",*dummy);
-}*/
 
   //remove beam parts with overlap or keep them and remove giants in overlap region later
   stop_timer(dedisp_timer);
@@ -934,8 +918,8 @@ fprintf(dm_out,"%g\n",pl->h_dm_series[offset*8/pl->params.dm_nbits+l]);
    float S1, S2;
    sprintf(ofile,"%s/heimdall.cand",pl->params.output_dir);
    cands_out = fopen(ofile,"a");
-
-   
+   cout << "ofile: " << ofile << endl;
+ 
    // FILE WRITING VR
    float dm, snr;
    char cmd[300];
@@ -960,13 +944,12 @@ fprintf(dm_out,"%g\n",pl->h_dm_series[offset*8/pl->params.dm_nbits+l]);
      group_sample_ind = h_group_inds[i]%nsamps;
      group_beam_no = h_group_inds[i]/nsamps;
      samp_idx2 = first_idx + group_sample_ind; 
-     //filterbank_ind2 = first_idx*pl->params.nbeams + nsamps*(beam_no-1) +group_sample_ind;
      block_no2 = (group_sample_ind + first_idx)/(nsamps - pl->params.boxcar_max - dedisp_get_max_delay(pl->dedispersion_plan));
-	 if (group_sample_ind < overlap) filterbank_ind2 = block_no2 * block_size * pl->params.nbeams + (beam_no-1) * block_size + group_sample_ind - overlap;
-         else filterbank_ind2 = block_no2 * block_size * pl->params.nbeams + (beam_no-1) * block_size + group_sample_ind + nsamps - 2*overlap;
+     if (group_sample_ind < overlap) filterbank_ind2 = block_no2 * block_size * pl->params.nbeams + (beam_no-1) * block_size + group_sample_ind - overlap; 
+     else filterbank_ind2 = block_no2 * block_size * pl->params.nbeams + (beam_no-1) * block_size + group_sample_ind + nsamps - 2*overlap;
      // record output
-     if (group_sample_ind < *nsamps_processed) fprintf(cands_out,"%g %lu %lu %g %d %d %g %d %d\n",h_group_peaks[i],filterbank_ind2,samp_idx2,samp_idx2 * pl->params.dt,h_group_filter_inds[i],h_group_dm_inds[i],h_group_dms[i],h_group_members[i],group_beam_no);
-     
+     if (group_sample_ind < *nsamps_processed && group_sample_ind >= overlap) fprintf(cands_out,"%g %lu %lu %g %d %d %g %d %d\n",h_group_peaks[i],filterbank_ind2,samp_idx2,samp_idx2 * pl->params.dt,h_group_filter_inds[i],h_group_dm_inds[i],h_group_dms[i],h_group_members[i],group_beam_no);
+
      // if pulse is dump-able
      if (h_group_peaks[i]>10.0 && group_sample_ind < nsamps_computed) {
 
