@@ -18,7 +18,7 @@ void hd_set_default_params(hd_params* params) {
 	params->nsamps_gulp     = 262144;//131072; // TODO: Check that this is good
 	// TODO: This is no longer being used
 	params->dm_gulp_size    = 2048;//256;    // TODO: Check that this is good
-	params->baseline_length = 0.25;
+	params->baseline_length = 5.0;
 	params->beam            = 0;
 	params->nbeams		= 1;
 	params->n_boxcar_inc    = 10; // number of boxcar filter width linear increments 
