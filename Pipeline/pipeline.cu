@@ -657,6 +657,10 @@ fprintf(dm_out,"%g\n",pl->h_dm_series[offset*8/pl->params.dm_nbits+l]);
 	//if (dm_idx==150)
 	//for (int idx=0;idx<cur_nsamps_filtered;idx++) cout << "VR" << pl->d_filtered_series[idx] << endl;
 	}*/
+
+      /*if (filter_width==pl->params.boxcar_max && dm_idx==0) {
+	for (int idx=0;idx<cur_nsamps_filtered;idx++) cout << "VR " << pl->d_filtered_series[idx] << endl;
+	}*/
       error = giant_finder.exec(filtered_series, cur_nsamps_filtered,
 				pl->params.detect_thresh,
 				pl->params.cand_sep_time * rel_rel_filter_width,
