@@ -504,14 +504,7 @@ hd_error hd_execute(hd_pipeline pl,
     default:
       return HD_INVALID_NBITS;
     }
-/*FILE *dm_out;
-   char ofiledmo[200];
-   sprintf(ofiledmo,"%s/dm_out.cand",pl->params.output_dir);
-   dm_out = fopen(ofiledmo,"a");
-for (int l=0; l < cur_nsamps;l++)  {
-fprintf(dm_out,"dm_idx %d",dm_idx);
-fprintf(dm_out,"%g\n",pl->h_dm_series[offset*8/pl->params.dm_nbits+l]);
-}*/
+    
     stop_timer(copy_timer);
     
     // Remove the baseline
@@ -571,17 +564,6 @@ fprintf(dm_out,"%g\n",pl->h_dm_series[offset*8/pl->params.dm_nbits+l]);
     // Will make it a command line option to double or linearly increase the filter width?  
     // boxcar filter loop starts 
     int boxcar_inc = pl->params.boxcar_max / pl->params.n_boxcar_inc;
-
-    
-        
-      /*for( hd_size filter_width=min_filter_width;
-       filter_width<=pl->params.boxcar_max;
-       (if (2>1) filter_width+= boxcar_inc; 
-        else filter_width*=2; ) ) {*/
-
-      /*for( hd_size filter_width=min_filter_width;
-         filter_width<=pl->params.boxcar_max;
-         filter_width+= boxcar_inc) {*/
 
       for( hd_size filter_width=min_filter_width;
          filter_width<=pl->params.boxcar_max;
@@ -686,25 +668,13 @@ fprintf(dm_out,"%g\n",pl->h_dm_series[offset*8/pl->params.dm_nbits+l]);
 	cout << "WARNING: exceeded max giants/min, DM [" << dm_list[dm_idx] << "] space searched " << searched << "%" << endl;
 	break;
     }
-      /*
-      if (total_timer.getTime() > 7.75) { // nbeams*(nsamps_gulp + max_delay + boxcar_max) * tsamp?  
-	too_many_giants = true;
-	float searched = ((float) dm_idx * 100) / (float) dm_count;
-	cout << "WARNING: exceeded max giants processed in 7.75s, DM [" << dm_list[dm_idx] << "] space searched " << searched << "%" << endl;
-	break;
-      }*/
-      
-    } //close filter width loop  
+   } //close filter width loop  
     
   } //close DM loop
 
   hd_size giant_count = d_giant_peaks.size();
   cout << "Giant count = " << giant_count << endl;
  
-  /*FILE *giants_out;
-   char ofileg[200];
-   sprintf(ofileg,"%s/giants.cand",pl->params.output_dir);
-   giants_out = fopen(ofileg,"a");*/
   thrust::host_vector<hd_float> h_giant_peaks;
   thrust::host_vector<hd_size>  h_giant_inds;
   thrust::host_vector<hd_size>  h_giant_begins;
@@ -732,30 +702,7 @@ fprintf(dm_out,"%g\n",pl->h_dm_series[offset*8/pl->params.dm_nbits+l]);
    hd_size block_no;
    hd_size overlap = pl->params.boxcar_max + dedisp_get_max_delay(pl->dedispersion_plan);
    hd_size block_size = nsamps - overlap;
-   /*   if (first_idx > 0) {
-   for( hd_size i=0; i<h_giant_inds.size(); ++i ) {
-     if (h_giant_peaks[i] > pl->params.detect_thresh) {
-     //samp_idx = first_idx + h_giant_inds[i];
-     giant_index = h_giant_inds[i]%nsamps;
-     beam_no = h_giant_inds[i]/nsamps;
-     samp_idx = first_idx +giant_index;
-         block_no = (giant_index + first_idx)/(nsamps - pl->params.boxcar_max - dedisp_get_max_delay(pl->dedispersion_plan));
-         if (giant_index < overlap) filterbank_ind = block_no * block_size * pl->params.nbeams + (beam_no+1) * block_size + giant_index - overlap;
-	 else filterbank_ind = block_no * block_size * pl->params.nbeams + (beam_no-1) * block_size + giant_index + nsamps - 2*overlap;
-
-     // record output
-	 // fprintf(giants_out,"print");
-
-	 
-     if (giant_index < nsamps_computed + pl->params.boxcar_max/2) {
-     //fprintf(giants_out,"a:%g b:%lu c:%lu d:%g e:%d f:%d g:%g h:%d\n",h_giant_peaks[i],filterbank_ind, samp_idx,samp_idx * pl->params.dt,h_giant_filter_inds[i],h_giant_dm_inds[i],dm_list[h_giant_dm_inds[i]],beam_no);
-     fprintf(giants_out,"%g %lu %lu %g %d %d %g %d\n",h_giant_peaks[i],filterbank_ind, samp_idx,samp_idx * pl->params.dt,h_giant_filter_inds[i],h_giant_dm_inds[i],dm_list[h_giant_dm_inds[i]],beam_no);
-     
-     cout << 'giant.cand lines test' << h_giant_peaks[i] << endl;
-     }
-     }
-   }
-  }  */  
+  
   start_timer(candidates_timer);
 
   thrust::host_vector<hd_float> h_group_peaks;
@@ -803,15 +750,6 @@ fprintf(dm_out,"%g\n",pl->h_dm_series[offset*8/pl->params.dm_nbits+l]);
     cout << "Candidate count = " << group_count << endl;
   }
 
-  // TESTING***
-  /*std::vector<hd_byte> tdata;
-  tdata.resize(100);
-  for (int i=0;i<100;i++)
-    tdata[i] = (hd_byte)(i);
-    tfunc(tdata);*/
-  
-
-  
   thrust::device_vector<hd_float> d_group_peaks(group_count);
   thrust::device_vector<hd_size>  d_group_inds(group_count);
   thrust::device_vector<hd_size>  d_group_begins(group_count);
@@ -1015,7 +953,6 @@ fprintf(dm_out,"%g\n",pl->h_dm_series[offset*8/pl->params.dm_nbits+l]);
             
    }
    
-   //fclose(giants_out);     
   fclose(cands_out);
   stop_timer(candidates_timer);
 
