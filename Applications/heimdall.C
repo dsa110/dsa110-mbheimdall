@@ -34,23 +34,19 @@ using std::endl;
 #include "hd/stopwatch.h"
 
 
-int main(int argc, char* argv[]) 
-{
+int main(int argc, char* argv[]) {
   hd_params params;
   hd_set_default_params(&params);
   int ok = hd_parse_command_line(argc, argv, &params);
   size_t nsamps_gulp = params.nsamps_gulp;
   size_t nsnap = params.nsnap;
 
-  if (ok < 0)
-    return 1;
+  if (ok < 0) return 1;
   DataSource* data_source = 0;
 #ifdef HAVE_PSRDADA
   if( params.dada_id != 0 ) {
-cout << "here" << endl;
 
-    if (params.verbosity)
-      cerr << "Createing PSRDADA client" << endl;
+    if (params.verbosity) cerr << "Createing PSRDADA client" << endl;
 
     PSRDadaRingBuffer * d = new PSRDadaRingBuffer(params.dada_id);
 
@@ -60,31 +56,26 @@ cout << "here" << endl;
       return -1;
     }
 
-    if (params.verbosity)
-      cerr << "Connecting to ring buffer" << endl;
+    if (params.verbosity) cerr << "Connecting to ring buffer" << endl;
+
     // connect to PSRDADA ring buffer
-    if (! d->connect())
-    {
-       cerr << "ERROR: Failed to connection to psrdada ring buffer" << endl;
+    if (! d->connect()) {
+      cerr << "ERROR: Failed to connection to psrdada ring buffer" << endl;
       return -1;
     }
 
-    if (params.verbosity)
-      cerr << "Waiting for next header / data" << endl;
+    if (params.verbosity) cerr << "Waiting for next header / data" << endl;
 
     // wait for and then read next PSRDADA header/observation
-    if (! d->read_header())
-    {
-       cerr << "ERROR: Failed to connection to psrdada ring buffer" << endl;
+    if (! d->read_header()){
+      cerr << "ERROR: Failed to connection to psrdada ring buffer" << endl;
       return -1;
     }
 
     data_source = (DataSource *) d;
-    if (!params.override_beam)
-      params.beam = d->get_beam() - 1;
+    if (!params.override_beam) params.beam = d->get_beam() - 1;
   }
-  else 
-  {
+  else {
 #endif
     // Read from filterbank file
     data_source = new SigprocFile(params.sigproc_file, params.fswap);
@@ -131,13 +122,14 @@ cout << "here" << endl;
     return -1;
   }
   // --------------------------
-size_t derror;
-dedisp_plan dedispersion_plan;
-derror = dedisp_create_plan(&dedispersion_plan,
+
+  size_t derror;
+  dedisp_plan dedispersion_plan;
+  derror = dedisp_create_plan(&dedispersion_plan,
                               params.nchans, params.dt,
                               params.f0, params.df);
 
-derror = dedisp_generate_dm_list(dedispersion_plan,
+  derror = dedisp_generate_dm_list(dedispersion_plan,
                                    params.dm_min,
                                    params.dm_max,
                                    params.dm_pulse_width,
@@ -161,7 +153,7 @@ derror = dedisp_generate_dm_list(dedispersion_plan,
   for (int i=0;i<params.nbeams;i++) {
     for (int j = i*(nsamps_gulp + max_delay+boxcar_max)*stride*nsnap; j < (i*(nsamps_gulp + max_delay+boxcar_max) + max_delay+boxcar_max)* stride * nsnap; j++)
       filterbank[j] = 128;
-  nsamps_read += data_source->get_data (nsamps_gulp * nsnap, (char*)&filterbank[(i*(nsamps_gulp + max_delay+boxcar_max) + max_delay+boxcar_max)* stride * nsnap]);
+    nsamps_read += data_source->get_data (nsamps_gulp * nsnap, (char*)&filterbank[(i*(nsamps_gulp + max_delay+boxcar_max) + max_delay+boxcar_max)* stride * nsnap]);
   }
   nsamps_read = nsamps_read/params.nbeams;
   size_t overlap = 0;
@@ -189,31 +181,26 @@ derror = dedisp_generate_dm_list(dedispersion_plan,
     hd_size nsamps_processed;
     error = hd_execute(pipeline, &filterbank[0], nsamps_gulp + max_delay + boxcar_max, nbits,
                        total_nsamps, cur_nsamps, &nsamps_processed);
-    if (error == HD_NO_ERROR)
-    {
-      if (params.verbosity >= 1)
-        cout << "Processed " << nsamps_processed << " samples." << endl;
+    if (error == HD_NO_ERROR) {
+      if (params.verbosity >= 1) cout << "Processed " << nsamps_processed << " samples." << endl;
     }
-    else if (error == HD_TOO_MANY_EVENTS) 
-    {
+    else if (error == HD_TOO_MANY_EVENTS) {
       if (params.verbosity >= 1)
         cerr << "WARNING: hd_execute produces too many events, some data skipped" << endl;
     }
-    else 
-    {
+    else {
       cerr << "ERROR: Pipeline execution failed" << endl;
       cerr << "       " << hd_get_error_string(error) << endl;
       hd_destroy_pipeline(pipeline);
       return -1;
     }
 
-    if (params.verbosity >= 1)
-      cout << "Main: nsamps_processed=" << nsamps_processed << endl;
+    if (params.verbosity >= 1) cout << "Main: nsamps_processed=" << nsamps_processed << endl;
 
     if (total_nsamps == 0) total_nsamps += nsamps_gulp - max_delay - boxcar_max;
     else total_nsamps += nsamps_processed;
     
-    for (int i = 0; i < params.nbeams; i++){ 
+    for (int i = 0; i < params.nbeams; i++) { 
       std::copy(&filterbank[((i*(nsamps_gulp + max_delay + boxcar_max) + nsamps_gulp)) * stride * nsnap],
                 &filterbank[((i+1)*(nsamps_gulp + max_delay + boxcar_max)) * stride * nsnap],
                 &filterbank[i * (nsamps_gulp + max_delay + boxcar_max) * stride * nsnap]); 
@@ -223,8 +210,7 @@ derror = dedisp_generate_dm_list(dedispersion_plan,
     }
 
     // at the end of data, never execute the pipeline
-    if (nsamps_read < (nsamps_gulp - overlap)*nsnap) // why < ? not > ? 
-      stop_requested = 1;
+    if (nsamps_read < (nsamps_gulp - overlap)*nsnap) stop_requested = 1;
   }
  
   if( params.verbosity >= 1 ) {

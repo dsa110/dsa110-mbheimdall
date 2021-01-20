@@ -62,17 +62,14 @@ using thrust::device_vector;
 FILE *output;
 
 void tfunc(std::vector<hd_byte> &vec) {
-
   hd_byte* ddata = (hd_byte *)malloc(sizeof(hd_byte)*200);
   std::copy(vec.begin(),vec.end(),ddata);
   std::copy(vec.begin(),vec.end(),ddata+100);
     
-  for (int i=0;i<200;i++)
-    cout << +ddata[i] << " ";
+  for (int i=0;i<200;i++) cout << +ddata[i] << " ";
   cout << " " << endl;
 
   free(ddata);
-  
 }
 
 void send_string(char *string) /* includefile */
@@ -149,7 +146,7 @@ struct hd_pipeline_t {
 };
 
 hd_error allocate_gpu(const hd_pipeline pl) {
-  // TODO: This is just a simple proc-->GPU heuristic to get us started
+  // This is just a simple proc-->GPU heuristic to get us started
   int gpu_count;
   cudaGetDeviceCount(&gpu_count);
   int proc_idx = pl->params.beam;
@@ -433,18 +430,7 @@ hd_error hd_execute(hd_pipeline pl,
                               out, out_nbits, out_stride,
                               flags);
 
-  //remove beam parts with overlap or keep them and remove giants in overlap region later
   stop_timer(dedisp_timer);
-  /*if (pl->params.nbeams > 1) {
-  for(hd_size beam = 0; beam < pl->params.nbeams; beam++)  {
-    for(hd_size dm_trial = 0; dm_trial < dm_count; dm_trial++)  {
-      std::copy(&pl->h_dm_series[(beam*dm_count+dm_trial)*nsamps*out_nbits/8],
-      &pl->h_dm_series[(beam*dm_count+dm_trial)*(nsamps)*out_nbits/8+ nsamps_computed*out_nbits/8],
-      &pl->h_dm_series[(beam*dm_count+dm_trial)*(series_stride)*out_nbits/8]); 
-    }
-  }
-  pl->h_dm_series.erase(&pl->h_dm_series[pl->params.nbeams*dm_count*series_stride],&pl->h_dm_series[pl->h_dm_series.size()]);
-  }*/
   if( derror != DEDISP_NO_ERROR ) {
     return throw_dedisp_error(derror);
   }
@@ -457,7 +443,6 @@ hd_error hd_execute(hd_pipeline pl,
   int notrig = 0;
 
   // For each DM
-
   for( hd_size dm_idx=0; dm_idx<dm_count; ++dm_idx ) {
 
     hd_size  cur_dm_scrunch = scrunch_factors[dm_idx];
@@ -565,45 +550,39 @@ hd_error hd_execute(hd_pipeline pl,
     // boxcar filter loop starts 
     int boxcar_inc = pl->params.boxcar_max / pl->params.n_boxcar_inc;
 
-      for( hd_size filter_width=min_filter_width;
-         filter_width<=pl->params.boxcar_max;
-	   //         filter_width*=2 ) { // power of two boxcar
-	   filter_width+=1 ) {
-      hd_size rel_filter_width = filter_width / cur_dm_scrunch;
-      //hd_size filter_idx = get_filter_index(filter_width); // power of two boxcar
-      hd_size filter_idx = filter_width;
+      for( hd_size filter_width=min_filter_width; filter_width<=pl->params.boxcar_max; filter_width+=1 ) {
+        hd_size rel_filter_width = filter_width / cur_dm_scrunch;
+        hd_size filter_idx = filter_width;
       
-      if( pl->params.verbosity >= 4 ) {
-        cout << "Filtering each beam at width of " << filter_width << endl;
-      }
+        if( pl->params.verbosity >= 4 ) {
+          cout << "Filtering each beam at width of " << filter_width << endl;
+        }
       
-      // Note: Filter width is relative to the current time resolution
-      hd_size rel_min_tscrunch_width = std::max(pl->params.min_tscrunch_width
+        // Note: Filter width is relative to the current time resolution
+        hd_size rel_min_tscrunch_width = std::max(pl->params.min_tscrunch_width
                                                 / cur_dm_scrunch,
                                                 hd_size(1));
-      hd_size rel_tscrunch_width = std::max(2 * rel_filter_width
+        hd_size rel_tscrunch_width = std::max(2 * rel_filter_width
                                             / rel_min_tscrunch_width,
                                             hd_size(1));
-      // Filter width relative to cur_dm_scrunch AND tscrunch
-      hd_size rel_rel_filter_width = rel_filter_width / rel_tscrunch_width;
+        // Filter width relative to cur_dm_scrunch AND tscrunch
+        hd_size rel_rel_filter_width = rel_filter_width / rel_tscrunch_width;
       
-      start_timer(filter_timer);
+        start_timer(filter_timer);
       
-      error = matched_filter_plan.exec(filtered_series,
-                                       rel_filter_width,
-                                       rel_tscrunch_width);
+        error = matched_filter_plan.exec(filtered_series, rel_filter_width, rel_tscrunch_width);
       
-      if( error != HD_NO_ERROR ) {
-        return throw_error(error);
-      }
-      // Divide and round up
-      hd_size cur_nsamps_filtered = ((max_nsamps_filtered-1)
+        if( error != HD_NO_ERROR ) {
+          return throw_error(error);
+        }
+        // Divide and round up
+        hd_size cur_nsamps_filtered = ((max_nsamps_filtered-1)
                                      / rel_tscrunch_width + 1);
-      hd_size cur_scrunch = cur_dm_scrunch * rel_tscrunch_width;
+        hd_size cur_scrunch = cur_dm_scrunch * rel_tscrunch_width;
       
-      // TESTING Proper normalisation
-      hd_float rms = rms_getter.exec(filtered_series, cur_nsamps_filtered);
-      thrust::transform(thrust::device_ptr<hd_float>(filtered_series),
+        // TESTING Proper normalisation
+        hd_float rms = rms_getter.exec(filtered_series, cur_nsamps_filtered);
+        thrust::transform(thrust::device_ptr<hd_float>(filtered_series),
                         thrust::device_ptr<hd_float>(filtered_series)
                         + cur_nsamps_filtered,
                         thrust::make_constant_iterator(hd_float(1.0)/rms),
@@ -612,17 +591,11 @@ hd_error hd_execute(hd_pipeline pl,
 
       
 
-      hd_size prev_giant_count = d_giant_peaks.size();
+        hd_size prev_giant_count = d_giant_peaks.size();
 
-      start_timer(giants_timer);
+        start_timer(giants_timer);
 
-
-      /*if (filter_width==10 && dm_idx<500) {
-	pl->d_filtered_series[1] = 7.020202;
-	//if (dm_idx==150)
-	//for (int idx=0;idx<cur_nsamps_filtered;idx++) cout << "VR" << pl->d_filtered_series[idx] << endl;
-	}*/
-      error = giant_finder.exec(filtered_series, cur_nsamps_filtered,
+        error = giant_finder.exec(filtered_series, cur_nsamps_filtered,
 				pl->params.detect_thresh,
 				pl->params.cand_sep_time * rel_rel_filter_width,
 				d_giant_peaks,
@@ -630,45 +603,45 @@ hd_error hd_execute(hd_pipeline pl,
 				d_giant_begins,
 				d_giant_ends);
 
-      if( error != HD_NO_ERROR ) {
-	return throw_error(error);
-      }
+        if( error != HD_NO_ERROR ) {
+	  return throw_error(error);
+        }
 
-      hd_size rel_cur_filtered_offset = (cur_filtered_offset /
-					 rel_tscrunch_width);
+        hd_size rel_cur_filtered_offset = (cur_filtered_offset /
+    					 rel_tscrunch_width);
 
-      using namespace thrust::placeholders;
-      thrust::transform(d_giant_inds.begin()+prev_giant_count,
+        using namespace thrust::placeholders;
+        thrust::transform(d_giant_inds.begin()+prev_giant_count,
 			d_giant_inds.end(),
 			d_giant_inds.begin()+prev_giant_count,
-			/*first_idx +*/ (_1+rel_cur_filtered_offset)*cur_scrunch);
-      thrust::transform(d_giant_begins.begin()+prev_giant_count,
+			(_1+rel_cur_filtered_offset)*cur_scrunch);
+        thrust::transform(d_giant_begins.begin()+prev_giant_count,
 			d_giant_begins.end(),
 			d_giant_begins.begin()+prev_giant_count,
-			/*first_idx +*/ (_1+rel_cur_filtered_offset)*cur_scrunch);
-      thrust::transform(d_giant_ends.begin()+prev_giant_count,
+			(_1+rel_cur_filtered_offset)*cur_scrunch);
+        thrust::transform(d_giant_ends.begin()+prev_giant_count,
 			d_giant_ends.end(),
 			d_giant_ends.begin()+prev_giant_count,
-			/*first_idx +*/ (_1+rel_cur_filtered_offset)*cur_scrunch);
+			(_1+rel_cur_filtered_offset)*cur_scrunch);
 
-      d_giant_filter_inds.resize(d_giant_peaks.size(), filter_idx);
-      d_giant_dm_inds.resize(d_giant_peaks.size(), dm_idx);
-      // Note: This could be used to track total member samples if desired
-      d_giant_members.resize(d_giant_peaks.size(), 1);
+        d_giant_filter_inds.resize(d_giant_peaks.size(), filter_idx);
+        d_giant_dm_inds.resize(d_giant_peaks.size(), dm_idx);
+        // Note: This could be used to track total member samples if desired
+        d_giant_members.resize(d_giant_peaks.size(), 1);
 
-      stop_timer(giants_timer);
+        stop_timer(giants_timer);
       
-      // Bail if the candidate rate is too high
-      hd_size total_giant_count = d_giant_peaks.size();
-      hd_float data_length_mins = nsamps * pl->params.dt / 60.0;
-      if ( pl->params.max_giant_rate && ( total_giant_count / data_length_mins > pl->params.max_giant_rate ) ) {
-	too_many_giants = true;
-	float searched = ((float) dm_idx * 100) / (float) dm_count;
-	notrig = 1;
-	cout << "WARNING: exceeded max giants/min, DM [" << dm_list[dm_idx] << "] space searched " << searched << "%" << endl;
-	break;
-    }
-   } //close filter width loop  
+        // Bail if the candidate rate is too high
+        hd_size total_giant_count = d_giant_peaks.size();
+        hd_float data_length_mins = nsamps * pl->params.dt / 60.0;
+        if ( pl->params.max_giant_rate && ( total_giant_count / data_length_mins > pl->params.max_giant_rate ) ) {
+    	  too_many_giants = true;
+	  float searched = ((float) dm_idx * 100) / (float) dm_count;
+	  notrig = 1;
+	  cout << "WARNING: exceeded max giants/min, DM [" << dm_list[dm_idx] << "] space searched " << searched << "%" << endl;
+	  break;
+        }
+     } //close filter width loop  
     
   } //close DM loop
 
@@ -694,14 +667,14 @@ hd_error hd_execute(hd_pipeline pl,
   h_giant_dm_inds = d_giant_dm_inds;
   h_giant_members = d_giant_members;
 
-   // FILE WRITING  - prior to clustering
-   hd_size samp_idx;
-   hd_size beam_no;
-   hd_size giant_index;
-   hd_size filterbank_ind;
-   hd_size block_no;
-   hd_size overlap = pl->params.boxcar_max + dedisp_get_max_delay(pl->dedispersion_plan);
-   hd_size block_size = nsamps - overlap;
+  // FILE WRITING  - prior to clustering
+  hd_size samp_idx;
+  hd_size beam_no;
+  hd_size giant_index;
+  hd_size filterbank_ind;
+  hd_size block_no;
+  hd_size overlap = pl->params.boxcar_max + dedisp_get_max_delay(pl->dedispersion_plan);
+  hd_size block_size = nsamps - overlap;
   
   start_timer(candidates_timer);
 
@@ -713,7 +686,6 @@ hd_error hd_execute(hd_pipeline pl,
   thrust::host_vector<hd_size>  h_group_dm_inds;
   thrust::host_vector<hd_size>  h_group_members;
   thrust::host_vector<hd_float> h_group_dms;
-
   
   thrust::device_vector<hd_size> d_giant_labels(giant_count);
   hd_size* d_giant_labels_ptr = thrust::raw_pointer_cast(&d_giant_labels[0]);
@@ -790,10 +762,6 @@ hd_error hd_execute(hd_pipeline pl,
   h_group_members = d_group_members;
   h_group_dms = d_group_dms;
 
-
-
-
-  
   // writing stuff
   char buffer[64];
   time_t now = pl->params.utc_start + (time_t) (first_idx / pl->params.spectra_per_second);
@@ -804,10 +772,8 @@ hd_error hd_execute(hd_pipeline pl,
 
   std::ostringstream oss;
 
-  if ( pl->params.coincidencer_host != NULL && pl->params.coincidencer_port != -1 )
-  {
-    try 
-    {
+  if ( pl->params.coincidencer_host != NULL && pl->params.coincidencer_port != -1 ) {
+    try {
       ClientSocket client_socket ( pl->params.coincidencer_host, pl->params.coincidencer_port );
 
       strftime (buffer, 64, HD_TIMESTR, (struct tm*) gmtime(&(pl->params.utc_start)));
@@ -825,8 +791,7 @@ hd_error hd_execute(hd_pipeline pl,
       oss.flush();
       oss.str("");
 
-      for (hd_size i=0; i<h_group_peaks.size(); ++i ) 
-      {
+      for (hd_size i=0; i<h_group_peaks.size(); ++i ) {
         hd_size samp_idx = first_idx + h_group_inds[i];
         oss << h_group_peaks[i] << "\t"
                       << samp_idx << "\t"
@@ -844,11 +809,9 @@ hd_error hd_execute(hd_pipeline pl,
       }
       // client_socket should close when it goes out of scope...
     }
-    catch (SocketException& e )
-    {
+    catch (SocketException& e ) {
       std::cerr << "SocketException was caught:" << e.description() << "\n";
     }
-
   }
 
    FILE *cands_out;
@@ -878,7 +841,6 @@ hd_error hd_execute(hd_pipeline pl,
    hd_size block_no2;
    hd_size filterbank_ind2;
    for( hd_size i=0; i<h_group_peaks.size(); ++i ) {
-     //samp_idx2 = first_idx + h_group_begins[i];
      group_sample_ind = h_group_inds[i]%nsamps;
      group_beam_no = h_group_inds[i]/nsamps;
      samp_idx2 = first_idx + group_sample_ind; 
@@ -898,7 +860,6 @@ hd_error hd_execute(hd_pipeline pl,
        }
        	   
      }
-       
    }
 
    // check for too many cands per block. 
@@ -914,23 +875,6 @@ hd_error hd_execute(hd_pipeline pl,
      output_data.resize((s2-s1)*(pl->params.nchans*nbits/8));
      std::copy(pl->h_clean_filterbank.begin()+s1*(pl->params.nchans*nbits/8),pl->h_clean_filterbank.begin()+s2*(pl->params.nchans*nbits/8),output_data.begin());
 
-     
-     // dump data
-     // comment out the "nc" command for now, since they tell a non-existent buffer to send data. 
-     /*
-     sprintf(cmd,"echo %lu-%g-%d-%g | nc -4u -w1 10.10.1.7 11223 &",rawsample,h_group_peaks[maxI],h_group_filter_inds[maxI],h_group_dms[maxI]);
-     cout << "Sending to dsa1: " << cmd << endl;
-     system(cmd);
-     sprintf(cmd,"echo %lu-%g-%d-%g | nc -4u -w1 10.10.1.8 11223 &",rawsample,h_group_peaks[maxI],h_group_filter_inds[maxI],h_group_dms[maxI]);
-     system(cmd);
-     sprintf(cmd,"echo %lu-%g-%d-%g | nc -4u -w1 10.10.1.9 11223 &",rawsample,h_group_peaks[maxI],h_group_filter_inds[maxI],h_group_dms[maxI]);
-     system(cmd);
-     sprintf(cmd,"echo %lu-%g-%d-%g | nc -4u -w1 10.10.1.10 11223 &",rawsample,h_group_peaks[maxI],h_group_filter_inds[maxI],h_group_dms[maxI]);
-     system(cmd);
-     sprintf(cmd,"echo %lu-%g-%d-%g | nc -4u -w1 10.10.1.1 11223 &",rawsample,h_group_peaks[maxI],h_group_filter_inds[maxI],h_group_dms[maxI]);
-     system(cmd);
-     */
-     
      sprintf(filname,"%s/candidate_%d.fil",pl->params.output_dir,first_idx+h_group_begins[maxI]);
      output = fopen(filname,"wb");
      send_string("HEADER_START");
@@ -956,7 +900,6 @@ hd_error hd_execute(hd_pipeline pl,
   fclose(cands_out);
   stop_timer(candidates_timer);
 
-
   stop_timer(total_timer);
   
   cout << "Mem alloc time:          " << memory_timer.getTime() << endl;
@@ -977,8 +920,6 @@ hd_error hd_execute(hd_pipeline pl,
     return HD_NO_ERROR;
   }
 
-  
-  
 }
 
 void hd_destroy_pipeline(hd_pipeline pipeline) {
