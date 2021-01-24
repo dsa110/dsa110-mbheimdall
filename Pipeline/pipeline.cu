@@ -708,7 +708,7 @@ fprintf(dm_out,"%g\n",pl->h_dm_series[offset*8/pl->params.dm_nbits+l]);
 	break;
 	}*/
       
-      if (total_timer.getTime() > 3.5) { // nbeams*(nsamps_gulp + max_delay + boxcar_max) * tsamp?  
+      if (total_timer.getTime() > 3.) { // nbeams*(nsamps_gulp + max_delay + boxcar_max) * tsamp?  
 	too_many_giants = true;
 	float searched = ((float) dm_idx * 100) / (float) dm_count;
 	cout << "WARNING: exceeded max giants processed in 3.5s, DM [" << dm_list[dm_idx] << "] space searched " << searched << "%" << endl;
@@ -937,7 +937,7 @@ fprintf(dm_out,"%g\n",pl->h_dm_series[offset*8/pl->params.dm_nbits+l]);
       oss.flush();
       oss.str("");
 
-      if (gulp_idx > 1 && giant_count < 10000) {
+      if (gulp_idx > 1 && giant_count < 1000) {
 
 	for( hd_size i=0; i<h_giant_inds.size(); ++i ) {
 	  if (h_giant_peaks[i] > pl->params.detect_thresh) {
