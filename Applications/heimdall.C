@@ -197,8 +197,8 @@ int main(int argc, char* argv[]) {
 
     if (params.verbosity >= 1) cout << "Main: nsamps_processed=" << nsamps_processed << endl;
 
-    if (total_nsamps == 0) total_nsamps += nsamps_gulp - max_delay - boxcar_max;
-    else total_nsamps += nsamps_processed;
+    //if (total_nsamps == 0) total_nsamps += nsamps_gulp - max_delay - boxcar_max;
+    /*else*/ total_nsamps += nsamps_processed;
     
     for (int i = 0; i < params.nbeams; i++) { 
       std::copy(&filterbank[((i*(nsamps_gulp + max_delay + boxcar_max) + nsamps_gulp)) * stride * nsnap],
