@@ -16,6 +16,7 @@ using std::endl;
 #include <unistd.h>
 #include <string.h>
 #include <cstdlib>
+#include <cuda_profiler_api.h>
 
 #include "hd/parse_command_line.h"
 #include "hd/default_params.h"
@@ -179,8 +180,10 @@ int main(int argc, char* argv[]) {
     }
     
     hd_size nsamps_processed;
+    cudaProfilerStart();
     error = hd_execute(pipeline, &filterbank[0], nsamps_gulp + max_delay + boxcar_max, nbits,
                        total_nsamps, cur_nsamps, &nsamps_processed);
+    cudaProfilerStop();
     if (error == HD_NO_ERROR) {
       if (params.verbosity >= 1) cout << "Processed " << nsamps_processed << " samples." << endl;
     }
@@ -197,8 +200,8 @@ int main(int argc, char* argv[]) {
 
     if (params.verbosity >= 1) cout << "Main: nsamps_processed=" << nsamps_processed << endl;
 
-    //if (total_nsamps == 0) total_nsamps += nsamps_gulp - max_delay - boxcar_max;
-    /*else*/ total_nsamps += nsamps_processed;
+    if (total_nsamps == 0) total_nsamps += nsamps_gulp - max_delay - boxcar_max;
+    else total_nsamps += nsamps_processed;
     
     for (int i = 0; i < params.nbeams; i++) { 
       std::copy(&filterbank[((i*(nsamps_gulp + max_delay + boxcar_max) + nsamps_gulp)) * stride * nsnap],

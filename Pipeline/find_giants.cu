@@ -134,12 +134,8 @@ public:
                                                 thrust::retag<my_tag>(d_data_end),
                                                 greater_than_val<hd_float>(thresh));
 						
-    //if (giant_data_count>0) {
-       //std::cout << "GIANT_DATA_COUNT = " << giant_data_count << " " << giant_data_ct2 << std::endl;
-    //}
     // We can bail early if there are no giants at all
     if( 0 == giant_data_count ) {
-      //std::cout << "**** Found ZERO giants" << std::endl;
       return HD_NO_ERROR;
     }
   
@@ -195,10 +191,6 @@ public:
                                 thrust::retag<my_tag>(d_giant_data_segments.begin()),
                                 not_nearby<hd_size>(merge_dist));
   
-    //hd_size giant_count_quick = thrust::count(d_giant_data_segments.begin(),
-    //                                          d_giant_data_segments.end(),
-    //                                          (int)true);
-  
     // The first element is implicitly a segment head
     if( giant_data_count > 0 ) {
       d_giant_data_segments.front() = 0;
@@ -213,15 +205,8 @@ public:
                            thrust::retag<my_tag>(d_giant_data_seg_ids.begin()));
   
     // We extract the number of giants from the end of the exclusive scan
-    //hd_size giant_count = d_giant_data_seg_ids.back() +
-    //  d_giant_data_segments.back() + 1;
     hd_size giant_count = d_giant_data_seg_ids.back() + 1;
-    //hd_size giant_count = d_giant_data_seg_ids.back() +
-    //  d_giant_data_segments.back();
   
-    // Report back the actual number of giants found
-    //total_giant_count = giant_count;
-    
 #ifdef PRINT_BENCHMARKS
     cudaThreadSynchronize();
     timer.stop();
