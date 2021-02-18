@@ -25,10 +25,6 @@
 #include <thrust/iterator/retag.h>
 
 // Global instance of the custom temporary memory allocator for Thrust
-// TODO: We should be calling g_allocator.free_all() somewhere at the end of
-//         the application to ensure memory is freed before the underlying
-//         device backend (e.g., CUDART) goes out of scope. Not sure exactly
-//         where to put it though.
 cached_allocator g_allocator;
 
 template<typename T>
@@ -293,9 +289,10 @@ public:
     std::cout << "--------------------" << std::endl;
 #endif
   
-    return HD_NO_ERROR;
-  }
-  
+    g_allocator.free_all();
+    return HD_NO_ERROR;  
+}
+ 
 };
 
 // Public interface (wrapper for implementation)
