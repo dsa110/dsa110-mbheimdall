@@ -133,7 +133,12 @@ generate_dmlist.o: generate_dmlist.C /usr/include/stdc-predef.h \
  /usr/local/cuda/include/texture_types.h \
  /usr/local/cuda/include/cuda_device_runtime_api.h \
  ../Pipeline/hd/default_params.h ../Pipeline/hd/params.h ../config.h \
- ../Pipeline/hd/types.h /usr/include/c++/5/cstddef
+ /usr/local/include/dada_hdu.h /usr/local/include/multilog.h \
+ /usr/include/syslog.h /usr/include/x86_64-linux-gnu/sys/syslog.h \
+ /usr/include/x86_64-linux-gnu/bits/syslog-path.h \
+ /usr/include/x86_64-linux-gnu/bits/syslog.h /usr/local/include/ipcio.h \
+ /usr/local/include/ipcbuf.h ../Pipeline/hd/types.h \
+ /usr/include/c++/5/cstddef
 
 /usr/include/stdc-predef.h:
 
@@ -494,6 +499,22 @@ generate_dmlist.o: generate_dmlist.C /usr/include/stdc-predef.h \
 ../Pipeline/hd/params.h:
 
 ../config.h:
+
+/usr/local/include/dada_hdu.h:
+
+/usr/local/include/multilog.h:
+
+/usr/include/syslog.h:
+
+/usr/include/x86_64-linux-gnu/sys/syslog.h:
+
+/usr/include/x86_64-linux-gnu/bits/syslog-path.h:
+
+/usr/include/x86_64-linux-gnu/bits/syslog.h:
+
+/usr/local/include/ipcio.h:
+
+/usr/local/include/ipcbuf.h:
 
 ../Pipeline/hd/types.h:
 

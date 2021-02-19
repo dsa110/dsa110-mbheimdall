@@ -54,7 +54,7 @@
 /* #undef HAVE_POW */
 
 /* Define if the PSRDADA Library is present */
-/* #undef HAVE_PSRDADA */
+#define HAVE_PSRDADA 1
 
 /* Define to 1 if your system has a GNU libc compatible `realloc' function,
    and to 0 otherwise. */
