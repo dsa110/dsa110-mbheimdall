@@ -280,7 +280,6 @@ hd_error hd_create_pipeline(hd_pipeline* pipeline_, hd_params params) {
 hd_error hd_execute(hd_pipeline pl,
                     const hd_byte* h_filterbank, hd_size nsamps, hd_size nbits,
                     hd_size first_idx, hd_size iidx, hd_size* nsamps_processed) {
-  cout << "        first_idx = " << first_idx << "        iidx = " << iidx << endl;
 
   hd_error error = HD_NO_ERROR;
   
