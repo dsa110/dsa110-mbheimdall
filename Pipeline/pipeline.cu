@@ -899,7 +899,7 @@ hd_error hd_execute(hd_pipeline pl,
      if (group_sample_ind < overlap) filterbank_ind2 = block_no2 * block_size * pl->params.nbeams + (beam_no-1) * block_size + group_sample_ind - overlap; 
      else filterbank_ind2 = block_no2 * block_size * pl->params.nbeams + (beam_no-1) * block_size + group_sample_ind + nsamps - 2*overlap;
      // record output
-     if (group_sample_ind < *nsamps_processed && group_sample_ind >= overlap) fprintf(cands_out,"%g %lu %lu %g %d %d %g %d %d\n",h_group_peaks[i],filterbank_ind2,samp_idx2,samp_idx2 * pl->params.dt,h_group_filter_inds[i],h_group_dm_inds[i],h_group_dms[i],h_group_members[i],group_beam_no);
+     if (group_sample_ind < *nsamps_processed) fprintf(cands_out,"%g %lu %lu %g %d %d %g %d %d\n",h_group_peaks[i],filterbank_ind2,samp_idx2,samp_idx2 * pl->params.dt,h_group_filter_inds[i],h_group_dm_inds[i],h_group_dms[i],h_group_members[i],group_beam_no);
 
      // if pulse is dump-able
      if (h_group_peaks[i]>8.0 && h_group_dms[i]>100.0 && group_sample_ind < nsamps_computed) {
