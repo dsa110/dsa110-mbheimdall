@@ -29,14 +29,14 @@ void hd_set_default_params(hd_params* params) {
 	params->df              = -.390625;
 	params->dm_min          = 0.0;
 	params->dm_max          = 1000.0;
-	params->dm_tol          = 1.35;
+	params->dm_tol          = 1.25;
 	params->dm_pulse_width  = 40;//e-6; // TODO: Check why this was here
 	params->dm_nbits        = 32;//8;
 	params->use_scrunching  = true;
 	params->scrunch_tol     = 1.15;
 	params->rfi_tol         = 5.0;//1e-6;//1e-9; TODO: Should this be a probability instead?
 	params->rfi_min_beams   = 8;
-	params->boxcar_max      = 32;//2048;//512; // Actual width, in linear filter implementation
+	params->boxcar_max      = 64;//2048;//512; // Actual width, in linear filter implementation
 	params->detect_thresh   = 6.5;
 	params->cand_sep_time   = 2;
 	// Note: These have very little effect on the candidates, but could be important

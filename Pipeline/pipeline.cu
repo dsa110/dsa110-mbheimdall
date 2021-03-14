@@ -59,8 +59,6 @@ using thrust::device_vector;
 
 #include <dedisp.h>
 
-FILE *output;
-
 void tfunc(std::vector<hd_byte> &vec) {
   hd_byte* ddata = (hd_byte *)malloc(sizeof(hd_byte)*200);
   std::copy(vec.begin(),vec.end(),ddata);
@@ -70,53 +68,6 @@ void tfunc(std::vector<hd_byte> &vec) {
   cout << " " << endl;
 
   free(ddata);
-}
-
-void send_string(char *string) /* includefile */
-{
-  int len;
-  len=strlen(string);
-  fwrite(&len, sizeof(int), 1, output);
-  fwrite(string, sizeof(char), len, output);
-}
-
-void send_float(char *name,float floating_point) /* includefile */
-{
-  send_string(name);
-  fwrite(&floating_point,sizeof(float),1,output);
-}
-
-void send_double (char *name, double double_precision) /* includefile */
-{
-  send_string(name);
-  fwrite(&double_precision,sizeof(double),1,output);
-}
-
-void send_int(char *name, int integer) /* includefile */
-{
-  send_string(name);
-  fwrite(&integer,sizeof(int),1,output);
-}
-
-void send_char(char *name, char integer) /* includefile */
-{
-  send_string(name);
-  fwrite(&integer,sizeof(char),1,output);
-}
-
-
-void send_long(char *name, long integer) /* includefile */
-{
-  send_string(name);
-  fwrite(&integer,sizeof(long),1,output);
-}
-
-void send_coords(double raj, double dej, double az, double za) /*includefile*/
-{
-  if ((raj != 0.0) || (raj != -1.0)) send_double("src_raj",raj);
-  if ((dej != 0.0) || (dej != -1.0)) send_double("src_dej",dej);
-  if ((az != 0.0)  || (az != -1.0))  send_double("az_start",az);
-  if ((za != 0.0)  || (za != -1.0))  send_double("za_start",za);
 }
 
 #define HD_BENCHMARK
@@ -149,7 +100,7 @@ hd_error allocate_gpu(const hd_pipeline pl) {
   // This is just a simple proc-->GPU heuristic to get us started
   int gpu_count;
   cudaGetDeviceCount(&gpu_count);
-  int proc_idx = pl->params.beam;
+  int proc_idx = 0;
   int gpu_idx = pl->params.gpu_id;
   
   cudaError_t cerror = cudaSetDevice(gpu_idx);
@@ -279,7 +230,8 @@ hd_error hd_create_pipeline(hd_pipeline* pipeline_, hd_params params) {
 
 hd_error hd_execute(hd_pipeline pl,
                     const hd_byte* h_filterbank, hd_size nsamps, hd_size nbits,
-                    hd_size first_idx, hd_size iidx, hd_size* nsamps_processed) {
+                    hd_size first_idx, hd_size iidx, hd_size* nsamps_processed,
+		    hd_size gulp_idx) {
 
   hd_error error = HD_NO_ERROR;
   
@@ -303,14 +255,14 @@ hd_error hd_execute(hd_pipeline pl,
   hd_size nbytes = (nsamps) * pl->params.nchans * nbits / 8 * pl->params.nbeams;
   start_timer(memory_timer);
   pl->h_clean_filterbank.resize(nbytes);
-  std::vector<int>          h_killmask(pl->params.nchans, 1);
+  //std::vector<int>          h_killmask(pl->params.nchans, 1);
   stop_timer(memory_timer);
 
   // copy to clean filterbank
   std::copy(h_filterbank,h_filterbank+nbytes,pl->h_clean_filterbank.begin());
   
   // apply manual killmasks
-  error = apply_manual_killmasks (pl->dedispersion_plan,
+  /*  error = apply_manual_killmasks (pl->dedispersion_plan,
                                   &h_killmask[0], 
                                   pl->params.num_channel_zaps,
                                   pl->params.channel_zaps);
@@ -324,7 +276,7 @@ hd_error hd_execute(hd_pipeline pl,
   if( pl->params.verbosity >= 2 ) {
     cout << "Bad channel count = " << bad_chan_count << endl;
   }
-  
+  */
   stop_timer(clean_timer);
   
   if( pl->params.verbosity >= 2 ) {
@@ -366,7 +318,7 @@ hd_error hd_execute(hd_pipeline pl,
   }
   
   // Set channel killmask for dedispersion
-  dedisp_set_killmask(pl->dedispersion_plan, &h_killmask[0]);
+  //dedisp_set_killmask(pl->dedispersion_plan, &h_killmask[0]);
   hd_size nsamps_computed  = nsamps - dedisp_get_max_delay(pl->dedispersion_plan);
   hd_size series_stride    = nsamps_computed;
   
@@ -378,9 +330,7 @@ hd_error hd_execute(hd_pipeline pl,
     cout << "max delay = " << dedisp_get_max_delay(pl->dedispersion_plan) << endl;
     cout << "nsamps_computed = " << nsamps_computed << endl;
   }
-  
-  hd_size beam = pl->params.beam;
-  
+    
   if( pl->params.verbosity >= 2 ) {
     cout << "\tAllocating memory for pipeline computations..." << endl;
   }
@@ -548,7 +498,9 @@ hd_error hd_execute(hd_pipeline pl,
     // boxcar filter loop starts 
     int boxcar_inc = pl->params.boxcar_max / pl->params.n_boxcar_inc;
 
-      for( hd_size filter_width=min_filter_width; filter_width<=pl->params.boxcar_max; filter_width+=1 ) {
+      for( hd_size filter_width=min_filter_width;
+	   filter_width<=pl->params.boxcar_max;
+	   filter_width*=2 ) {
         hd_size rel_filter_width = filter_width / cur_dm_scrunch;
         hd_size filter_idx = filter_width;
       
@@ -632,13 +584,16 @@ hd_error hd_execute(hd_pipeline pl,
         // Bail if the candidate rate is too high
         hd_size total_giant_count = d_giant_peaks.size();
         hd_float data_length_mins = nsamps * pl->params.dt / 60.0;
-        if ( pl->params.max_giant_rate && ( total_giant_count / data_length_mins > pl->params.max_giant_rate ) ) {
-    	  too_many_giants = true;
+
+	if (total_timer.getTime() > 3.5) {
+	  too_many_giants = true;
 	  float searched = ((float) dm_idx * 100) / (float) dm_count;
-	  cout << "WARNING: exceeded max giants/min, DM [" << dm_list[dm_idx] << "] space searched " << searched << "%" << endl;
+	  cout << "WARNING: exceeded processing time: 3.5s, DM [" << dm_list[dm_idx] << "] \
+space searched " << searched << "%" << endl;
 	  break;
-        }
-     } //close filter width loop  
+	}
+
+      } //close filter width loop  
     
   } //close DM loop
 
@@ -680,14 +635,14 @@ hd_error hd_execute(hd_pipeline pl,
    for( hd_size i=0; i<h_giant_inds.size(); ++i ) {
      if (h_giant_peaks[i] > pl->params.detect_thresh) {
      	giant_index = h_giant_inds[i]%nsamps;
-     	beam_no = h_giant_inds[i]/nsamps;
+     	beam_no = h_giant_inds[i]/nsamps  + pl->params.beam;
      	samp_idx = first_idx +giant_index;
         block_no = (giant_index + first_idx)/(nsamps - pl->params.boxcar_max - dedisp_get_max_delay(pl->dedispersion_plan));
         if (giant_index < overlap) filterbank_ind = block_no * block_size * pl->params.nbeams + (beam_no+1) * block_size + giant_index - overlap;
 	else filterbank_ind = block_no * block_size * pl->params.nbeams + (beam_no-1) * block_size + giant_index + nsamps - 2*overlap;
 
      	if (giant_index < nsamps_computed + pl->params.boxcar_max/2) {
-     	    fprintf(giants_out,"%g %lu %lu %g %d %d %g %d\n",h_giant_peaks[i],filterbank_ind, samp_idx,samp_idx * pl->params.dt,h_giant_filter_inds[i],h_giant_dm_inds[i],dm_list[h_giant_dm_inds[i]],beam_no);
+	  fprintf(giants_out,"%g %lu %lu %g %d %d %g %d\n",h_giant_peaks[i],filterbank_ind, samp_idx,samp_idx * pl->params.dt,h_giant_filter_inds[i],h_giant_dm_inds[i],dm_list[h_giant_dm_inds[i]],beam_no);
      	}
      }
    }
@@ -695,261 +650,54 @@ hd_error hd_execute(hd_pipeline pl,
   
   start_timer(candidates_timer);
 
-  thrust::host_vector<hd_float> h_group_peaks;
-  thrust::host_vector<hd_size>  h_group_inds;
-  thrust::host_vector<hd_size>  h_group_begins;
-  thrust::host_vector<hd_size>  h_group_ends;
-  thrust::host_vector<hd_size>  h_group_filter_inds;
-  thrust::host_vector<hd_size>  h_group_dm_inds;
-  thrust::host_vector<hd_size>  h_group_members;
-  thrust::host_vector<hd_float> h_group_dms;
-  
-  thrust::device_vector<hd_size> d_giant_labels(giant_count);
-  hd_size* d_giant_labels_ptr = thrust::raw_pointer_cast(&d_giant_labels[0]);
-  
-  RawCandidates d_giants;
-  d_giants.peaks = thrust::raw_pointer_cast(&d_giant_peaks[0]);
-  d_giants.inds = thrust::raw_pointer_cast(&d_giant_inds[0]);
-  d_giants.begins = thrust::raw_pointer_cast(&d_giant_begins[0]);
-  d_giants.ends = thrust::raw_pointer_cast(&d_giant_ends[0]);
-  d_giants.filter_inds = thrust::raw_pointer_cast(&d_giant_filter_inds[0]);
-  d_giants.dm_inds = thrust::raw_pointer_cast(&d_giant_dm_inds[0]);
-  d_giants.members = thrust::raw_pointer_cast(&d_giant_members[0]);
-  
-  hd_size filter_count = pl->params.boxcar_max;
-  
-  if( pl->params.verbosity >= 2 ) {
-    cout << "Grouping coincident candidates..." << endl;
-  }
-  
-  hd_size label_count;
-  error = label_candidate_clusters(giant_count,
-				   *(ConstRawCandidates*)&d_giants,
-				   pl->params.cand_sep_time,
-				   pl->params.cand_sep_filter,
-				   pl->params.cand_sep_dm,
-				   d_giant_labels_ptr,
-				   &label_count);
-  if( error != HD_NO_ERROR ) {
-    return throw_error(error);
-  }
-  
-  hd_size group_count = label_count;
-  if( pl->params.verbosity >= 2 ) {
-    cout << "Candidate count = " << group_count << endl;
-  }
-
-  thrust::device_vector<hd_float> d_group_peaks(group_count);
-  thrust::device_vector<hd_size>  d_group_inds(group_count);
-  thrust::device_vector<hd_size>  d_group_begins(group_count);
-  thrust::device_vector<hd_size>  d_group_ends(group_count);
-  thrust::device_vector<hd_size>  d_group_filter_inds(group_count);
-  thrust::device_vector<hd_size>  d_group_dm_inds(group_count);
-  thrust::device_vector<hd_size>  d_group_members(group_count);
-  
-  thrust::device_vector<hd_float> d_group_dms(group_count);
-  
-  RawCandidates d_groups;
-  d_groups.peaks = thrust::raw_pointer_cast(&d_group_peaks[0]);
-  d_groups.inds = thrust::raw_pointer_cast(&d_group_inds[0]);
-  d_groups.begins = thrust::raw_pointer_cast(&d_group_begins[0]);
-  d_groups.ends = thrust::raw_pointer_cast(&d_group_ends[0]);
-  d_groups.filter_inds = thrust::raw_pointer_cast(&d_group_filter_inds[0]);
-  d_groups.dm_inds = thrust::raw_pointer_cast(&d_group_dm_inds[0]);
-  d_groups.members = thrust::raw_pointer_cast(&d_group_members[0]);
-  
-  merge_candidates(giant_count,
-		   d_giant_labels_ptr,
-		   *(ConstRawCandidates*)&d_giants,
-		   d_groups);
-  
-  // Look up the actual DM of each group
-  thrust::device_vector<hd_float> d_dm_list(dm_list, dm_list+dm_count);
-  thrust::gather(d_group_dm_inds.begin(), d_group_dm_inds.end(),
-		 d_dm_list.begin(),
-		 d_group_dms.begin());
-  
-  // Device to host transfer of candidates
-  h_group_peaks = d_group_peaks;
-  h_group_inds = d_group_inds;
-  h_group_begins = d_group_begins;
-  h_group_ends = d_group_ends;
-  h_group_filter_inds = d_group_filter_inds;
-  h_group_dm_inds = d_group_dm_inds;
-  h_group_members = d_group_members;
-  h_group_dms = d_group_dms;
-
-  // writing stuff
-  char buffer[64];
-  time_t now = pl->params.utc_start + (time_t) (first_idx / pl->params.spectra_per_second);
-  strftime (buffer, 64, HD_TIMESTR, (struct tm*) gmtime(&now));
-
-  std::stringstream ss;
-  ss << std::setw(2) << std::setfill('0') << (pl->params.beam)%13+1;
+  // send candidates to T2
 
   std::ostringstream oss;
-
   if ( pl->params.coincidencer_host != NULL && pl->params.coincidencer_port != -1 ) {
     try {
       ClientSocket client_socket ( pl->params.coincidencer_host, pl->params.coincidencer_port );
 
-      strftime (buffer, 64, HD_TIMESTR, (struct tm*) gmtime(&(pl->params.utc_start)));
-
-      //oss <<  buffer << " ";
-
-      time_t now = pl->params.utc_start + (time_t) (first_idx / pl->params.spectra_per_second);
-      strftime (buffer, 64, HD_TIMESTR, (struct tm*) gmtime(&now));
-      //oss << buffer << " ";
-
-      /*oss << first_idx << " ";
-      oss << ss.str() << " ";
-      oss << h_group_peaks.size() << endl;
+      oss << gulp_idx << endl;
       client_socket << oss.str();
       oss.flush();
       oss.str("");
 
-      for (hd_size i=0; i<h_group_peaks.size(); ++i ) {
-        hd_size samp_idx = first_idx + h_group_inds[i];
-        oss << h_group_peaks[i] << "\t"
-                      << samp_idx << "\t"
-                      << samp_idx * pl->params.dt << "\t"
-                      << h_group_filter_inds[i] << "\t"
-                      << h_group_dm_inds[i] << "\t"
-                      << h_group_dms[i] << "\t"
-                      << h_group_members[i] << "\t"
-                      << first_idx + h_group_begins[i] << "\t"
-                      << first_idx + h_group_ends[i] << endl;
+      if (gulp_idx > 1 && giant_count < 10000) {
 
-        client_socket << oss.str();
-        oss.flush();
-        oss.str("");
-      }*/
+	for( hd_size i=0; i<h_giant_inds.size(); ++i ) {
+	  if (h_giant_peaks[i] > pl->params.detect_thresh) {
+	    giant_index = h_giant_inds[i]%nsamps;
+	    beam_no = h_giant_inds[i]/nsamps + pl->params.beam;
+	    samp_idx = first_idx +giant_index;
+	    block_no = (giant_index + first_idx)/(nsamps - pl->params.boxcar_max - dedisp_get_max_delay(pl->dedispersion_plan));
+	    if (giant_index < overlap) filterbank_ind = block_no * block_size * pl->params.nbeams + (beam_no+1) * block_size + giant_index - overlap;
+	    else filterbank_ind = block_no * block_size * pl->params.nbeams + (beam_no-1) * block_size + giant_index + nsamps - 2*overlap;
 
-      // gc: write giants in socket 
-      //oss << first_idx << " ";
-      //oss << ss.str() << " ";
-      //oss << h_giant_inds.size() << endl;
-      //client_socket << oss.str();
-      //oss.flush();
-      //oss.str("");
+	    // record output
+	    if (giant_index < nsamps_computed + pl->params.boxcar_max/2) {
+	      oss << h_giant_peaks[i] << " "
+		  << filterbank_ind << " "
+		  << samp_idx << " "
+		  << samp_idx * pl->params.dt << " "
+		  << h_giant_filter_inds[i] << " "
+		  << h_giant_dm_inds[i] << " "
+		  << dm_list[h_giant_dm_inds[i]] << " "
+		  << beam_no << endl;
 
-      for( hd_size i=0; i<h_giant_inds.size(); ++i ) {
-        if (h_giant_peaks[i] > pl->params.detect_thresh) {
-          giant_index = h_giant_inds[i]%nsamps;
-          beam_no = h_giant_inds[i]/nsamps;
-          samp_idx = first_idx +giant_index;
-          block_no = (giant_index + first_idx)/(nsamps - pl->params.boxcar_max - dedisp_get_max_delay(pl->dedispersion_plan));
-          if (giant_index < overlap) filterbank_ind = block_no * block_size * pl->params.nbeams + (beam_no+1) * block_size + giant_index - overlap;
-          else filterbank_ind = block_no * block_size * pl->params.nbeams + (beam_no-1) * block_size + giant_index + nsamps - 2*overlap;
-          // record output  
-          if (giant_index < nsamps_computed + pl->params.boxcar_max/2) {
-            oss << h_giant_peaks[i] << " "
-                << filterbank_ind << " "
-                << samp_idx << " " 
-                << samp_idx * pl->params.dt << " "
-                << h_giant_filter_inds[i] << " "
-                << h_giant_dm_inds[i] << " "
-                << dm_list[h_giant_dm_inds[i]] << " "
-                << beam_no << endl;
-
-            client_socket << oss.str();
-            oss.flush();
-            oss.str("");
-          }
-        }
+	      client_socket << oss.str();
+	      oss.flush();
+	      oss.str("");
+	    }
+	  }
+	}
       }
-      // client_socket should close when it goes out of scope...
     }
-    catch (SocketException& e ) {
-      std::cerr << "SocketException was caught:" << e.description() << "\n";
-    }
+    catch (SocketException& e )
+      {
+	std::cerr << "SocketException was caught:" << e.description() << "\n";
+      }
   }
-
-   FILE *cands_out;
-   char ofile[200];
-   float S1, S2;
-   sprintf(ofile,"%s/heimdall.cand",pl->params.output_dir);
-   cands_out = fopen(ofile,"a");
-   cout << "ofile: " << ofile << endl;
- 
-   // FILE WRITING VR
-   float dm, snr;
-   char cmd[300];
-   hd_size rawsample;
-   int samp, wid;
-   char filname[200];
-   int s1, s2;
-   
-   int maxI=-1;
-   float maxSNR=0.;
-   float maxFRB=0.;
-   
-   std::vector<hd_byte> output_data;
-   int sent=0;
-   hd_size samp_idx2;
-   hd_size group_beam_no;   
-   hd_size group_sample_ind;
-   hd_size block_no2;
-   hd_size filterbank_ind2;
-   for( hd_size i=0; i<h_group_peaks.size(); ++i ) {
-     group_sample_ind = h_group_inds[i]%nsamps;
-     group_beam_no = h_group_inds[i]/nsamps;
-     samp_idx2 = first_idx + group_sample_ind; 
-     block_no2 = (group_sample_ind + first_idx)/(nsamps - pl->params.boxcar_max - dedisp_get_max_delay(pl->dedispersion_plan));
-     if (group_sample_ind < overlap) filterbank_ind2 = block_no2 * block_size * pl->params.nbeams + (beam_no-1) * block_size + group_sample_ind - overlap; 
-     else filterbank_ind2 = block_no2 * block_size * pl->params.nbeams + (beam_no-1) * block_size + group_sample_ind + nsamps - 2*overlap;
-     // record output
-     if (group_sample_ind < *nsamps_processed) fprintf(cands_out,"%g %lu %lu %g %d %d %g %d %d\n",h_group_peaks[i],filterbank_ind2,samp_idx2,samp_idx2 * pl->params.dt,h_group_filter_inds[i],h_group_dm_inds[i],h_group_dms[i],h_group_members[i],group_beam_no);
-
-     // if pulse is dump-able
-     if (h_group_peaks[i]>8.0 && h_group_dms[i]>100.0 && group_sample_ind < nsamps_computed) {
-
-       // find peak SNR so we're only dumping one per block
-       if (h_group_peaks[i]>maxSNR) {
-	 maxSNR = h_group_peaks[i];
-	 maxI = i;
-       }
-       	   
-     }
-   }
-
-   // check for too many cands per block. 
-   if (h_group_peaks.size()>0 && maxI!=-1) {
-
-     samp_idx = first_idx + h_group_begins[maxI];
-     rawsample = (samp_idx+iidx-3815); // VR wuz hre - edit for different stuff
-     s1 = h_group_begins[maxI]-50;
-     if (s1<0) s1=0;
-     s2 = h_group_ends[maxI]+int((0.000761*h_group_dms[maxI])/pl->params.dt)+50+(int)(h_group_filter_inds[maxI]);
-     if (s2>nbytes/(pl->params.nchans*nbits/8)) s2=nbytes/(pl->params.nchans*nbits/8);
-	 
-     output_data.resize((s2-s1)*(pl->params.nchans*nbits/8));
-     std::copy(pl->h_clean_filterbank.begin()+s1*(pl->params.nchans*nbits/8),pl->h_clean_filterbank.begin()+s2*(pl->params.nchans*nbits/8),output_data.begin());
-
-     sprintf(filname,"%s/candidate_%g_%g_%d.fil",pl->params.output_dir,h_group_peaks[maxI],h_group_dms[maxI],h_group_filter_inds[maxI]);
-     
-     output = fopen(filname,"wb");
-     send_string("HEADER_START");
-     send_string("source_name");
-     send_string("DSATEST");
-     send_int("machine_id",1);
-     send_int("telescope_id",82);
-     send_int("data_type",1); // filterbank data
-     send_double("fch1",pl->params.f0);
-     send_double("foff",pl->params.df);
-     send_int("nchans",pl->params.nchans);
-     send_int("nbits",nbits);
-     send_double("tstart",55000.0);
-     send_double("tsamp",pl->params.dt);
-     send_int("nifs",1);
-     send_string("HEADER_END");
-     
-     fwrite((&output_data[0]),nbits/8,pl->params.nchans*(s2-s1),output);
-     fclose(output);
-            
-   }
-   
-  fclose(cands_out);
+  
   stop_timer(candidates_timer);
 
   stop_timer(total_timer);

@@ -36,18 +36,18 @@ using std::endl;
 
 
 int main(int argc, char* argv[]) {
+
   hd_params params;
   hd_set_default_params(&params);
   int ok = hd_parse_command_line(argc, argv, &params);
   size_t nsamps_gulp = params.nsamps_gulp;
-  size_t nsnap = params.nsnap;
 
   if (ok < 0) return 1;
   DataSource* data_source = 0;
 #ifdef HAVE_PSRDADA
   if( params.dada_id != 0 ) {
 
-    if (params.verbosity) cerr << "Createing PSRDADA client" << endl;
+    if (params.verbosity) cerr << "Creating PSRDADA client" << endl;
 
     PSRDadaRingBuffer * d = new PSRDadaRingBuffer(params.dada_id);
 
@@ -103,7 +103,6 @@ int main(int argc, char* argv[]) {
 
   float tsamp = data_source->get_tsamp() / 1000000;
   size_t stride = data_source->get_stride();
-  params.beam_count = 10; 
   size_t nbits  = data_source->get_nbit();
 
   params.nchans = data_source->get_nchan();
@@ -140,8 +139,8 @@ int main(int argc, char* argv[]) {
   size_t boxcar_max = params.boxcar_max;
   
   if ( params.verbosity >= 2)
-    cout << "allocating filterbank data vector for " << (nsamps_gulp+max_delay+boxcar_max)*nsnap << " samples with size " << ((nsamps_gulp + max_delay + boxcar_max) * stride * nsnap * params.nbeams) << " bytes" << " with " << params.nbeams << " beams." <<  endl;
-  std::vector<hd_byte> filterbank((nsamps_gulp + max_delay+boxcar_max)* stride * nsnap * params.nbeams);
+    cout << "allocating filterbank data vector for " << (nsamps_gulp+max_delay+boxcar_max) << " samples with size " << ((nsamps_gulp + max_delay + boxcar_max) * stride * params.nbeams) << " bytes" << " with " << params.nbeams << " beams." <<  endl;
+  std::vector<hd_byte> filterbank((nsamps_gulp + max_delay+boxcar_max)* stride *  params.nbeams);
 
   if( params.verbosity >= 1 ) {
     cout << "Beginning data processing, requesting " << nsamps_gulp << " samples" << endl;
@@ -152,12 +151,13 @@ int main(int argc, char* argv[]) {
   size_t total_nsamps = 0;
   size_t nsamps_read = 0;
   for (int i=0;i<params.nbeams;i++) {
-    for (int j = i*(nsamps_gulp + max_delay+boxcar_max)*stride*nsnap; j < (i*(nsamps_gulp + max_delay+boxcar_max) + max_delay+boxcar_max)* stride * nsnap; j++)
+    for (int j = i*(nsamps_gulp + max_delay+boxcar_max)*stride; j < (i*(nsamps_gulp + max_delay+boxcar_max) + max_delay+boxcar_max)* stride; j++)
       filterbank[j] = 128;
-    nsamps_read += data_source->get_data (nsamps_gulp * nsnap, (char*)&filterbank[(i*(nsamps_gulp + max_delay+boxcar_max) + max_delay+boxcar_max)* stride * nsnap]);
+    nsamps_read += data_source->get_data (nsamps_gulp, (char*)&filterbank[(i*(nsamps_gulp + max_delay+boxcar_max) + max_delay+boxcar_max)* stride]);
   }
   nsamps_read = nsamps_read/params.nbeams;
   size_t overlap = 0;
+  size_t gulp_idx = 0;
 
   while( nsamps_read && !stop_requested ) {
     
@@ -166,24 +166,13 @@ int main(int argc, char* argv[]) {
            << " samples..." << endl;
       cout << "total_nsamps =" << total_nsamps << endl;
     }
-
-    // copy output file if needed, and reset total_nsamps
-    char cmd[200];
-    if (total_nsamps > 54931640) { // 7200 seconds
-      cout << "--copying output file, total_nsamps = 0--" << endl;
-      cur_nsamps += total_nsamps;
-      total_nsamps = 0;
-      sprintf(cmd,"mv /mnt/nfs/data/heimdall/heimdall.cand /mnt/nfs/data/heimdall/heimdall_%d.cand",fseq);
-      fseq++;
-      system(cmd);
-
-    }
     
     hd_size nsamps_processed;
     cudaProfilerStart();
     error = hd_execute(pipeline, &filterbank[0], nsamps_gulp + max_delay + boxcar_max, nbits,
-                       total_nsamps, cur_nsamps, &nsamps_processed);
+                       total_nsamps, cur_nsamps, &nsamps_processed, gulp_idx);
     cudaProfilerStop();
+    gulp_idx ++;
     if (error == HD_NO_ERROR) {
       if (params.verbosity >= 1) cout << "Processed " << nsamps_processed << " samples." << endl;
     }
@@ -202,18 +191,15 @@ int main(int argc, char* argv[]) {
 
     if (total_nsamps == 0) total_nsamps += nsamps_gulp - max_delay - boxcar_max;
     else total_nsamps += nsamps_processed;
+
     
     for (int i = 0; i < params.nbeams; i++) { 
-      std::copy(&filterbank[((i*(nsamps_gulp + max_delay + boxcar_max) + nsamps_gulp)) * stride * nsnap],
-                &filterbank[((i+1)*(nsamps_gulp + max_delay + boxcar_max)) * stride * nsnap],
-                &filterbank[i * (nsamps_gulp + max_delay + boxcar_max) * stride * nsnap]); 
-      
-      nsamps_read = data_source->get_data((nsamps_gulp)*nsnap,
-                                        (char*)&filterbank[(max_delay + boxcar_max + i * (nsamps_gulp + max_delay + boxcar_max)) * stride * nsnap]);
+      std::copy(&filterbank[((i*(nsamps_gulp + max_delay + boxcar_max) + nsamps_gulp)) * stride],&filterbank[((i+1)*(nsamps_gulp + max_delay + boxcar_max)) * stride],&filterbank[i * (nsamps_gulp + max_delay + boxcar_max) * stride]); 
+      nsamps_read = data_source->get_data((nsamps_gulp),(char*)&filterbank[(max_delay + boxcar_max + i * (nsamps_gulp + max_delay + boxcar_max)) * stride]);
     }
 
     // at the end of data, never execute the pipeline
-    if (nsamps_read < (nsamps_gulp - overlap)*nsnap) stop_requested = 1;
+    if (nsamps_read < (nsamps_gulp - overlap)) stop_requested = 1;
   }
  
   if( params.verbosity >= 1 ) {
