@@ -599,11 +599,13 @@ space searched " << searched << "%" << endl;
 
   hd_size giant_count = d_giant_peaks.size();
   cout << "Giant count = " << giant_count << endl;
- 
+
+  /*
   FILE *giants_out;
   char ofileg[200];
   sprintf(ofileg,"%s/giants.cand",pl->params.output_dir);
   giants_out = fopen(ofileg,"a");
+  */
   
   thrust::host_vector<hd_float> h_giant_peaks;
   thrust::host_vector<hd_size>  h_giant_inds;
@@ -622,16 +624,17 @@ space searched " << searched << "%" << endl;
   h_giant_dm_inds = d_giant_dm_inds;
   h_giant_members = d_giant_members;
 
-   // FILE WRITING  - prior to clustering
-   hd_size samp_idx;
-   hd_size beam_no;
-   hd_size giant_index;
-   hd_size filterbank_ind;
-   hd_size block_no;
-   hd_size overlap = pl->params.boxcar_max + dedisp_get_max_delay(pl->dedispersion_plan);
-   hd_size block_size = nsamps - overlap;
-   
-   if (first_idx > 0) {
+  // FILE WRITING  - prior to clustering
+  hd_size samp_idx;
+  hd_size beam_no;
+  hd_size giant_index;
+  hd_size filterbank_ind;
+  hd_size block_no;
+  hd_size overlap = pl->params.boxcar_max + dedisp_get_max_delay(pl->dedispersion_plan);
+  hd_size block_size = nsamps - overlap;
+
+  /*
+  if (first_idx > 0) {
    for( hd_size i=0; i<h_giant_inds.size(); ++i ) {
      if (h_giant_peaks[i] > pl->params.detect_thresh) {
      	giant_index = h_giant_inds[i]%nsamps;
@@ -646,8 +649,11 @@ space searched " << searched << "%" << endl;
      	}
      }
    }
-  }  
-  
+  }
+
+  fclose(giants_out);
+  */   
+   
   start_timer(candidates_timer);
 
   // send candidates to T2
