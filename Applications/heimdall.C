@@ -18,6 +18,8 @@ using std::endl;
 #include <cstdlib>
 #include <cuda_profiler_api.h>
 
+#include "hd/find_giants.h"
+#include "hd/cached_allocator.cuh"
 #include "hd/parse_command_line.h"
 #include "hd/default_params.h"
 #include "hd/pipeline.h"
@@ -220,10 +222,10 @@ int main(int argc, char* argv[]) {
     cout << "Successfully processed a total of " << total_nsamps << " samples." << endl;
     cout << "Shutting down..." << endl;
   }
-  
   hd_destroy_pipeline(pipeline);
   
   if( params.verbosity >= 1 ) {
     cout << "All done." << endl;
   }
+  g_allocator.free_all();
 }

@@ -126,9 +126,12 @@ public:
     //       This turns out to be critical to performance!
     
     // Quickly count how much giant data there is so we know the space needed
-    hd_size giant_data_count = thrust::count_if(thrust::retag<my_tag>(d_data_begin),
-                                                thrust::retag<my_tag>(d_data_end),
-                                                greater_than_val<hd_float>(thresh));
+    // hd_size giant_data_count = thrust::count_if(thrust::retag<my_tag>(d_data_begin),
+    //                                            thrust::retag<my_tag>(d_data_end),
+    //                                            greater_than_val<hd_float>(thresh));
+
+    hd_size giant_data_count = thrust::count_if(thrust::cuda::par(g_allocator), d_data_begin, 
+						d_data_end, greater_than_val<hd_float>(thresh));
 						
     // We can bail early if there are no giants at all
     if( 0 == giant_data_count ) {
@@ -159,14 +162,14 @@ public:
 #endif
   
     hd_size giant_data_count2 = 
-      copy_if(make_zip_iterator(make_tuple(thrust::retag<my_tag>(d_data_begin),
+    copy_if(make_zip_iterator(make_tuple(thrust::retag<my_tag>(d_data_begin),
                                            make_counting_iterator(0u))),
-              make_zip_iterator(make_tuple(thrust::retag<my_tag>(d_data_begin),
+            make_zip_iterator(make_tuple(thrust::retag<my_tag>(d_data_begin),
                                            make_counting_iterator(0u)))+count,
-              (d_data_begin), // the stencil
-              make_zip_iterator(make_tuple(thrust::retag<my_tag>(d_giant_data.begin()),
+            (d_data_begin), // the stencil
+            make_zip_iterator(make_tuple(thrust::retag<my_tag>(d_giant_data.begin()),
                                            thrust::retag<my_tag>(d_giant_data_inds.begin()))),
-              greater_than_val<hd_float>(thresh))
+            greater_than_val<hd_float>(thresh))
       - make_zip_iterator(make_tuple(thrust::retag<my_tag>(d_giant_data.begin()),
                                      thrust::retag<my_tag>(d_giant_data_inds.begin())));
   
@@ -289,7 +292,7 @@ public:
     std::cout << "--------------------" << std::endl;
 #endif
   
-    g_allocator.free_all();
+    // g_allocator.free_all();
     return HD_NO_ERROR;  
 }
  
