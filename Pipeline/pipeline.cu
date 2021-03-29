@@ -390,6 +390,9 @@ hd_error hd_execute(hd_pipeline pl,
   
   bool too_many_giants = false;
 
+  // try to ease into pipeline
+  if (gulp_idx>1) {
+  
   // For each DM
   for( hd_size dm_idx=0; dm_idx<dm_count; ++dm_idx ) {
 
@@ -596,6 +599,8 @@ space searched " << searched << "%" << endl;
       } //close filter width loop  
     
   } //close DM loop
+
+  } // close gulp_idx condition
 
   hd_size giant_count = d_giant_peaks.size();
   cout << "Giant count = " << giant_count << endl;
