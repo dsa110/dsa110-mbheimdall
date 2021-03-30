@@ -152,6 +152,7 @@ int main(int argc, char* argv[]) {
   size_t nsamps_read = 0;
   size_t overlap = 0;
   size_t gulp_idx = 0;
+  hd_size nsamps_processed;
 
   // for dealing with memory allocation a priori
   error = hd_execute(pipeline, &filterbank[0], nsamps_gulp + max_delay + boxcar_max, nbits,
@@ -171,8 +172,7 @@ int main(int argc, char* argv[]) {
            << " samples..." << endl;
       cout << "total_nsamps =" << total_nsamps << endl;
     }
-    
-    hd_size nsamps_processed;
+        
     cudaProfilerStart();
     error = hd_execute(pipeline, &filterbank[0], nsamps_gulp + max_delay + boxcar_max, nbits,
                        total_nsamps, cur_nsamps, &nsamps_processed, gulp_idx);
