@@ -150,14 +150,19 @@ int main(int argc, char* argv[]) {
   size_t cur_nsamps = 0;
   size_t total_nsamps = 0;
   size_t nsamps_read = 0;
+  size_t overlap = 0;
+  size_t gulp_idx = 0;
+
+  // for dealing with memory allocation a priori
+  error = hd_execute(pipeline, &filterbank[0], nsamps_gulp + max_delay + boxcar_max, nbits,
+		     total_nsamps, cur_nsamps, &nsamps_processed, 0);
+  
   for (int i=0;i<params.nbeams;i++) {
     for (int j = i*(nsamps_gulp + max_delay+boxcar_max)*stride; j < (i*(nsamps_gulp + max_delay+boxcar_max) + max_delay+boxcar_max)* stride; j++)
       filterbank[j] = 128;
     nsamps_read += data_source->get_data (nsamps_gulp, (char*)&filterbank[(i*(nsamps_gulp + max_delay+boxcar_max) + max_delay+boxcar_max)* stride]);
   }
   nsamps_read = nsamps_read/params.nbeams;
-  size_t overlap = 0;
-  size_t gulp_idx = 0;
 
   while( nsamps_read && !stop_requested ) {
     
