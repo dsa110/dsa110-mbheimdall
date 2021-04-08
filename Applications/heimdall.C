@@ -197,6 +197,8 @@ int main(int argc, char* argv[]) {
       cerr << "ERROR: Pipeline execution failed" << endl;
       cerr << "       " << hd_get_error_string(error) << endl;
       hd_destroy_pipeline(pipeline);
+      dedisp_destroy_plan(dedispersion_plan);
+      delete data_source;
       return -1;
     }
 
@@ -222,8 +224,14 @@ int main(int argc, char* argv[]) {
     cout << "Successfully processed a total of " << total_nsamps << " samples." << endl;
     cout << "Shutting down..." << endl;
   }
+
   hd_destroy_pipeline(pipeline);
-  
+  dedisp_destroy_plan(dedispersion_plan);
+  delete data_source;
+  free((void*)(params.sigproc_file));
+  free((void*)(params.output_dir));
+  free((void*)(params.coincidencer_host));
+
   if( params.verbosity >= 1 ) {
     cout << "All done." << endl;
   }

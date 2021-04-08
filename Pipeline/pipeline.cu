@@ -379,8 +379,6 @@ hd_error hd_execute(hd_pipeline pl,
     cout << "nsamps_computed = " << nsamps_computed << endl;
   }
   
-  hd_size beam = pl->params.beam;
-  
   if( pl->params.verbosity >= 2 ) {
     cout << "\tAllocating memory for pipeline computations..." << endl;
   }
@@ -546,8 +544,6 @@ hd_error hd_execute(hd_pipeline pl,
 
     // Will make it a command line option to double or linearly increase the filter width?  
     // boxcar filter loop starts 
-    int boxcar_inc = pl->params.boxcar_max / pl->params.n_boxcar_inc;
-
       for( hd_size filter_width=min_filter_width; filter_width<=pl->params.boxcar_max; filter_width+=1 ) {
         hd_size rel_filter_width = filter_width / cur_dm_scrunch;
         hd_size filter_idx = filter_width;
@@ -716,8 +712,6 @@ hd_error hd_execute(hd_pipeline pl,
   d_giants.dm_inds = thrust::raw_pointer_cast(&d_giant_dm_inds[0]);
   d_giants.members = thrust::raw_pointer_cast(&d_giant_members[0]);
   
-  hd_size filter_count = pl->params.boxcar_max;
-  
   if( pl->params.verbosity >= 2 ) {
     cout << "Grouping coincident candidates..." << endl;
   }
@@ -867,25 +861,18 @@ hd_error hd_execute(hd_pipeline pl,
 
    FILE *cands_out;
    char ofile[200];
-   float S1, S2;
    sprintf(ofile,"%s/heimdall.cand",pl->params.output_dir);
    cands_out = fopen(ofile,"a");
    cout << "ofile: " << ofile << endl;
  
    // FILE WRITING VR
-   float dm, snr;
-   char cmd[300];
-   hd_size rawsample;
-   int samp, wid;
    char filname[200];
    int s1, s2;
    
    int maxI=-1;
    float maxSNR=0.;
-   float maxFRB=0.;
    
    std::vector<hd_byte> output_data;
-   int sent=0;
    hd_size samp_idx2;
    hd_size group_beam_no;   
    hd_size group_sample_ind;
@@ -917,7 +904,7 @@ hd_error hd_execute(hd_pipeline pl,
    if (h_group_peaks.size()>0 && maxI!=-1) {
 
      samp_idx = first_idx + h_group_begins[maxI];
-     rawsample = (samp_idx+iidx-3815); // VR wuz hre - edit for different stuff
+     hd_size rawsample = (samp_idx+iidx-3815); // VR wuz hre - edit for different stuff
      s1 = h_group_begins[maxI]-50;
      if (s1<0) s1=0;
      s2 = h_group_ends[maxI]+int((0.000761*h_group_dms[maxI])/pl->params.dt)+50+(int)(h_group_filter_inds[maxI]);
