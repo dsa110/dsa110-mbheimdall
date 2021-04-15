@@ -531,9 +531,6 @@ hd_error hd_execute(hd_pipeline pl,
       
         // TESTING Proper normalisation
 
-	hd_size ss = filtered_series.size();
-	cout << dm_idx << endl;//" " << filter_width << " " << cur_nsamps_filtered << endl; //" " << ss  << endl;
-	
         hd_float rms = rms_getter.exec(filtered_series, cur_nsamps_filtered);
         thrust::transform(thrust::device_ptr<hd_float>(filtered_series),
                         thrust::device_ptr<hd_float>(filtered_series)
