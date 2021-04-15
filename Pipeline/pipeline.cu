@@ -330,10 +330,6 @@ hd_error hd_execute(hd_pipeline pl,
     cout << "max delay = " << dedisp_get_max_delay(pl->dedispersion_plan) << endl;
     cout << "nsamps_computed = " << nsamps_computed << endl;
   }
-    
-  if( pl->params.verbosity >= 2 ) {
-    cout << "\tAllocating memory for pipeline computations..." << endl;
-  }
   
   start_timer(memory_timer);
   
@@ -708,7 +704,7 @@ space searched " << searched << "%" << endl;
 	std::cerr << "SocketException was caught:" << e.description() << "\n";
       }
   }
-  
+
   stop_timer(candidates_timer);
 
   stop_timer(total_timer);
