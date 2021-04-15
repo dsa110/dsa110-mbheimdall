@@ -18,7 +18,7 @@ Applications/fil2pgm
 Applications/generate_dmlist
 Applications/heimdall
 Formats/libhdformats.la
-Formats/libhdnetwork.la
+Network/libhdnetwork.la
 Formats/.libs/libhdnetwork.lai
 Network/.libs/libhdformats.lai
 Pipeline/.libs/libhdpipeline.lai
