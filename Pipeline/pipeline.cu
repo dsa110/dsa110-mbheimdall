@@ -530,6 +530,10 @@ hd_error hd_execute(hd_pipeline pl,
         hd_size cur_scrunch = cur_dm_scrunch * rel_tscrunch_width;
       
         // TESTING Proper normalisation
+
+	hd_size ss = filtered_series.size();
+	cout << dm_idx << endl;//" " << filter_width << " " << cur_nsamps_filtered << endl; //" " << ss  << endl;
+	
         hd_float rms = rms_getter.exec(filtered_series, cur_nsamps_filtered);
         thrust::transform(thrust::device_ptr<hd_float>(filtered_series),
                         thrust::device_ptr<hd_float>(filtered_series)
@@ -634,9 +638,9 @@ space searched " << searched << "%" << endl;
   hd_size overlap = pl->params.boxcar_max + dedisp_get_max_delay(pl->dedispersion_plan);
   hd_size block_size = nsamps - overlap;
 
-  /*
+  /*  
   if (first_idx > 0) {
-   for( hd_size i=0; i<h_giant_inds.size(); ++i ) {
+   for( hd_size i=0; i<h_giant_peaks.size(); ++i ) {
      if (h_giant_peaks[i] > pl->params.detect_thresh) {
      	giant_index = h_giant_inds[i]%nsamps;
      	beam_no = h_giant_inds[i]/nsamps  + pl->params.beam;
@@ -653,7 +657,7 @@ space searched " << searched << "%" << endl;
   }
 
   fclose(giants_out);
-  */   
+  */     
    
   start_timer(candidates_timer);
 
@@ -671,7 +675,7 @@ space searched " << searched << "%" << endl;
 
       if (gulp_idx > 1 && giant_count < 10000) {
 
-	for( hd_size i=0; i<h_giant_inds.size(); ++i ) {
+	for( hd_size i=0; i<h_giant_peaks.size(); ++i ) {
 	  if (h_giant_peaks[i] > pl->params.detect_thresh) {
 	    giant_index = h_giant_inds[i]%nsamps;
 	    beam_no = h_giant_inds[i]/nsamps + pl->params.beam;

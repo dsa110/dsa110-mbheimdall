@@ -17,8 +17,10 @@ Applications/coincidencer_client
 Applications/fil2pgm
 Applications/generate_dmlist
 Applications/heimdall
-Formats/.libs/libhdformats.lai
-Network/.libs/libhdnetwork.lai
+Formats/libhdformats.la
+Formats/libhdnetwork.la
+Formats/.libs/libhdnetwork.lai
+Network/.libs/libhdformats.lai
 Pipeline/.libs/libhdpipeline.lai
 bin/
 config.status

@@ -5,11 +5,11 @@
 #
 
 def getControlDir():
-  return "/home/ubuntu/proj/dsa110-shell/dsa110-mbheimdall/control"
+  return "/home/ubuntu/proj/dsa110-mbheimdall/control"
 
 def getConfigDir():
-  return "/home/ubuntu/proj/dsa110-shell/dsa110-mbheimdall/share"
+  return "/home/ubuntu/proj/dsa110-mbheimdall/share"
 
 def getBinaryDir():
-  return "/home/ubuntu/proj/dsa110-shell/dsa110-mbheimdall/bin"
+  return "/home/ubuntu/proj/dsa110-mbheimdall/bin"
 
