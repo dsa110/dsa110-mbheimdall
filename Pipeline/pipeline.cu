@@ -606,7 +606,7 @@ space searched " << searched << "%" << endl;
   FILE *giants_out;
   char ofileg[200];
   sprintf(ofileg,"/home/ubuntu/data/giants.cand",pl->params.output_dir);
-  giants_out = fopen(ofileg,"a");
+  //giants_out = fopen(ofileg,"a");
   
   
   thrust::host_vector<hd_float> h_giant_peaks;
@@ -635,7 +635,7 @@ space searched " << searched << "%" << endl;
   hd_size overlap = pl->params.boxcar_max + dedisp_get_max_delay(pl->dedispersion_plan);
   hd_size block_size = nsamps - overlap;
 
-  
+  /*
   if (first_idx > 0) {
    for( hd_size i=0; i<h_giant_peaks.size(); ++i ) {
      if (h_giant_peaks[i] > pl->params.detect_thresh) {
@@ -648,13 +648,13 @@ space searched " << searched << "%" << endl;
 
      	if (giant_index < nsamps_computed + pl->params.boxcar_max/2) {
 	  fprintf(giants_out,"%g %lu %lu %g %d %d %g %d\n",h_giant_peaks[i],filterbank_ind, samp_idx,samp_idx * pl->params.dt,h_giant_filter_inds[i],h_giant_dm_inds[i],dm_list[h_giant_dm_inds[i]],beam_no);
-     	}
+	}
      }
    }
   }
 
   fclose(giants_out);
-  
+  */  
    
   start_timer(candidates_timer);
 
