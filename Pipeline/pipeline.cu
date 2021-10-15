@@ -682,7 +682,7 @@ space searched " << searched << "%" << endl;
 	    else filterbank_ind = block_no * block_size * pl->params.nbeams + (beam_no-1) * block_size + giant_index + nsamps - 2*overlap;
 
 	    // record output
-	    if (giant_index < nsamps_computed + pl->params.boxcar_max/2) {
+	    if (giant_index < nsamps_computed + pl->params.boxcar_max/2 && beam_no>=0 && beam_no<256) {
 	      oss << h_giant_peaks[i] << " "
 		  << filterbank_ind << " "
 		  << samp_idx << " "
