@@ -387,7 +387,7 @@ hd_error hd_execute(hd_pipeline pl,
   bool too_many_giants = false;
 
   // try to ease into pipeline
-  if (gulp_idx>1) {
+  if (gulp_idx>=0) {
   
   // For each DM
   for( hd_size dm_idx=0; dm_idx<dm_count; ++dm_idx ) {
@@ -447,6 +447,11 @@ hd_error hd_execute(hd_pipeline pl,
     start_timer(baseline_timer);
     
     // TESTING
+    if (dm_idx==0) {
+      cout << "here" << endl;
+      for (int ii=0;ii<cur_nsamps;ii++) 
+	cout << "TS1 " << pl->d_time_series[ii] << endl;
+    }
     error = baseline_remover.exec(time_series, cur_nsamps, nsamps_smooth);
     stop_timer(baseline_timer);
     if( error != HD_NO_ERROR ) {
@@ -462,6 +467,11 @@ hd_error hd_execute(hd_pipeline pl,
                       pl->d_time_series.begin(),
                       thrust::multiplies<hd_float>());
     stop_timer(normalise_timer);
+
+    if (dm_idx==0) {
+      for (int ii=0;ii<cur_nsamps;ii++) 
+	cout << "TS2 " << pl->d_time_series[ii] << endl;
+    }
 
     // Prepare the boxcar filters
     // --------------------------
@@ -682,7 +692,7 @@ space searched " << searched << "%" << endl;
 	    else filterbank_ind = block_no * block_size * pl->params.nbeams + (beam_no-1) * block_size + giant_index + nsamps - 2*overlap;
 
 	    // record output
-	    if (giant_index < nsamps_computed + pl->params.boxcar_max/2) {
+	    if (giant_index < nsamps_computed + pl->params.boxcar_max/2 && beam_no>=0 && beam_no<=255) {
 	      oss << h_giant_peaks[i] << " "
 		  << filterbank_ind << " "
 		  << samp_idx << " "
