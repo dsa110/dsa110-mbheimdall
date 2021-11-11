@@ -601,7 +601,7 @@ space searched " << searched << "%" << endl;
 
   hd_size giant_count = d_giant_peaks.size();
   cout << "Giant count = " << giant_count << endl;
-
+  cout << "final_space_searched " << dm_list[dm_idx] << endl;
   
   FILE *giants_out;
   char ofileg[200];
