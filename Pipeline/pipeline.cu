@@ -385,12 +385,14 @@ hd_error hd_execute(hd_pipeline pl,
   }
   
   bool too_many_giants = false;
+  hd_size dm_idx_output = 0;
 
   // try to ease into pipeline
   if (gulp_idx>1) {
   
-  // For each DM
+  // For each DM    
   for( hd_size dm_idx=0; dm_idx<dm_count; ++dm_idx ) {
+    dm_idx_output = dm_idx;
 
     hd_size  cur_dm_scrunch = scrunch_factors[dm_idx];
     hd_size  cur_nsamps  = (nsamps_computed+nsamps*(pl->params.nbeams-1)) / cur_dm_scrunch;
@@ -601,7 +603,7 @@ space searched " << searched << "%" << endl;
 
   hd_size giant_count = d_giant_peaks.size();
   cout << "Giant count = " << giant_count << endl;
-  cout << "final_space_searched " << dm_list[dm_idx] << endl;
+  cout << "final_space_searched " << dm_list[dm_idx_output] << endl;
   
   FILE *giants_out;
   char ofileg[200];
