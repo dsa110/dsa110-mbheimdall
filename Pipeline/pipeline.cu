@@ -587,7 +587,7 @@ hd_error hd_execute(hd_pipeline pl,
         hd_size total_giant_count = d_giant_peaks.size();
         hd_float data_length_mins = nsamps * pl->params.dt / 60.0;
 
-	if (total_timer.getTime() > 3.5 || total_giant_count > 10000) {
+	if (total_timer.getTime() > 3500 || total_giant_count > 1000000) {
 	  too_many_giants = true;
 	  float searched = ((float) dm_idx * 100) / (float) dm_count;
 	  cout << "WARNING: exceeded processing time / giant count: 3.5s, 10k DM [" << dm_list[dm_idx] << "] \
@@ -607,8 +607,8 @@ space searched " << searched << "%" << endl;
   
   FILE *giants_out;
   char ofileg[200];
-  sprintf(ofileg,"/home/ubuntu/data/giants.cand",pl->params.output_dir);
-  //  giants_out = fopen(ofileg,"a");
+  sprintf(ofileg,"%s/giants.cand",pl->params.output_dir);
+  giants_out = fopen(ofileg,"a");
   
   
   thrust::host_vector<hd_float> h_giant_peaks;
@@ -637,7 +637,7 @@ space searched " << searched << "%" << endl;
   hd_size overlap = pl->params.boxcar_max + dedisp_get_max_delay(pl->dedispersion_plan);
   hd_size block_size = nsamps - overlap;
 
-  /*
+  
   if (first_idx > 0) {
    for( hd_size i=0; i<h_giant_peaks.size(); ++i ) {
      if (h_giant_peaks[i] > pl->params.detect_thresh) {
@@ -656,57 +656,7 @@ space searched " << searched << "%" << endl;
   }
 
   fclose(giants_out);
-  */  
-   
-  start_timer(candidates_timer);
-
-  // send candidates to T2
-
-  std::ostringstream oss;
-  if ( pl->params.coincidencer_host != NULL && pl->params.coincidencer_port != -1 ) {
-    try {
-      ClientSocket client_socket ( pl->params.coincidencer_host, pl->params.coincidencer_port );
-
-      oss << gulp_idx << endl;
-      client_socket << oss.str();
-      oss.flush();
-      oss.str("");
-
-      if (gulp_idx > 1 && giant_count < 10000) {
-
-	for( hd_size i=0; i<h_giant_peaks.size(); ++i ) {
-	  if (h_giant_peaks[i] > pl->params.detect_thresh) {
-	    giant_index = h_giant_inds[i]%nsamps;
-	    beam_no = h_giant_inds[i]/nsamps + pl->params.beam;
-	    samp_idx = first_idx +giant_index;
-	    block_no = (giant_index + first_idx)/(nsamps - pl->params.boxcar_max - dedisp_get_max_delay(pl->dedispersion_plan));
-	    if (giant_index < overlap) filterbank_ind = block_no * block_size * pl->params.nbeams + (beam_no+1) * block_size + giant_index - overlap;
-	    else filterbank_ind = block_no * block_size * pl->params.nbeams + (beam_no-1) * block_size + giant_index + nsamps - 2*overlap;
-
-	    // record output
-	    if (giant_index < nsamps_computed + pl->params.boxcar_max/2 && beam_no>=0 && beam_no<256) {
-	      oss << h_giant_peaks[i] << " "
-		  << filterbank_ind << " "
-		  << samp_idx << " "
-		  << samp_idx * pl->params.dt << " "
-		  << h_giant_filter_inds[i] << " "
-		  << h_giant_dm_inds[i] << " "
-		  << dm_list[h_giant_dm_inds[i]] << " "
-		  << beam_no << endl;
-
-	      client_socket << oss.str();
-	      oss.flush();
-	      oss.str("");
-	    }
-	  }
-	}
-      }
-    }
-    catch (SocketException& e )
-      {
-	std::cerr << "SocketException was caught:" << e.description() << "\n";
-      }
-  }
+  
 
   stop_timer(candidates_timer);
 

@@ -36,7 +36,7 @@ void hd_set_default_params(hd_params* params) {
 	params->scrunch_tol     = 1.15;
 	params->rfi_tol         = 5.0;//1e-6;//1e-9; TODO: Should this be a probability instead?
 	params->rfi_min_beams   = 8;
-	params->boxcar_max      = 64;//2048;//512; // Actual width, in linear filter implementation
+	params->boxcar_max      = 256;//2048;//512; // Actual width, in linear filter implementation
 	params->detect_thresh   = 6.5;
 	params->cand_sep_time   = 2;
 	// Note: These have very little effect on the candidates, but could be important
